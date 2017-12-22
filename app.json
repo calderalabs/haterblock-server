@@ -1,0 +1,8 @@
+{
+  "name": "haterblock-server",
+  "scripts": {
+    "dokku": {
+      "postdeploy": "date"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+- hosts: all
+  vars:
+    app_name: "{{lookup('env', 'APP_NAME')}}"
+    dokku_version: 0.11.3
+    ssh_public_key_file: "{{lookup('env', 'SSH_PUBLIC_KEY_FILE')}}"
+    dokku_public_key_file: "{{ansible_env.HOME}}/dokku_key.pub"
+    install_dokku: "{{ansible_env.HOME}}/install-dokku-{{dokku_version}}"
+  tasks:
+    - get_url:
+        url: https://raw.githubusercontent.com/dokku/dokku/v{{dokku_version}}/bootstrap.sh
+        dest: "{{install_dokku}}"
+    - file:
+        path: "{{install_dokku}}"
+        mode: u+x
+    - command: dokku version
+      register: dokku_version_result
+      changed_when: false
+      failed_when: dokku_version_result.rc != 0 and dokku_version_result.rc != 2
+    - command: "{{install_dokku}}"
+      register: install_dokku_result
+      changed_when: install_dokku_result | succeeded
+      become: true
+      when: dokku_version_result.rc == 2 or dokku_version not in dokku_version_result.stdout
+      environment:
+        DOKKU_TAG: v{{dokku_version}}
+        DOKKU_WEB_CONFIG: "false"
+        DOKKU_SKIP_KEY_FILE: "true"
+        DOKKU_VHOST_ENABLE: "true"
+    - file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      become: true
+    - copy:
+        src: "{{ssh_public_key_file}}"
+        dest: "{{dokku_public_key_file}}"
+    - command: ssh-keygen -l -f {{dokku_public_key_file}}
+      register: ssh_keygen_result
+      changed_when: false
+    - command: dokku ssh-keys:list
+      register: dokku_keys_result
+      changed_when: false
+      failed_when: dokku_keys_result.rc != 0 and "No public keys found" not in dokku_keys_result.stderr
+    - command: dokku ssh-keys:remove admin
+      register: dokku_remove_key_result
+      changed_when: dokku_remove_key_result | succeeded
+      become: true
+      when:
+        "'NAME=\"admin\"' in dokku_keys_result.stdout and
+        '%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"
+    - command: bash -c 'dokku ssh-keys:add admin {{dokku_public_key_file | quote}} < /dev/null'
+      register: dokku_add_key_result
+      changed_when: dokku_add_key_result | succeeded
+      become: true
+      when: "'%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"
+    - command: dokku apps:list
+      register: dokku_apps_list_result
+      changed_when: false
+    - command: dokku apps:create {{app_name}}
+      register: dokku_apps_create_result
+      become: true
+      when: app_name not in dokku_apps_list_result.stdout
+      changed_when: dokku_apps_create_result | succeeded
+    - command: dokku plugin
+      register: dokku_plugin_result
+      changed_when: false
+    - command: dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+      register: dokku_plugin_install_postgres_result
+      become: true
+      when: "'postgres' not in dokku_plugin_result.stdout"
+      changed_when: dokku_plugin_install_postgres_result | succeeded
+    - command: dokku postgres:list
+      register: dokku_postgres_list_result
+      changed_when: false
+    - command: dokku postgres:create {{app_name}}
+      register: dokku_postgres_create_result
+      become: true
+      when: app_name not in dokku_postgres_list_result.stdout
+      changed_when: dokku_postgres_create_result | succeeded
+    - command: dokku postgres:info {{app_name}} --links
+      register: dokku_postgres_info_result
+      changed_when: false
+    - command: dokku postgres:link {{app_name}} {{app_name}}
+      register: dokku_postgres_link_result
+      become: true
+      when: app_name not in dokku_postgres_info_result.stdout
+      changed_when: dokku_postgres_link_result | succeeded

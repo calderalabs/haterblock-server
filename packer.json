@@ -1,0 +1,51 @@
+{
+  "variables": {
+    "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
+    "aws_region": "{{env `AWS_REGION`}}",
+    "app_name": "{{env `APP_NAME`}}",
+    "ssh_public_key_file": "{{env `SSH_PUBLIC_KEY_FILE`}}",
+    "ssh_public_key_dest": "/tmp/{{uuid}}.pub"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key_id`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "{{user `aws_region`}}",
+    "instance_type": "t2.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "{{uuid}}",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+        "root-device-type": "ebs"
+      },
+      "owners": ["099720109477"],
+      "most_recent": true
+    },
+    "tags": {
+      "Name": "{{user `app_name`}}"
+    }
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sudo apt-get install software-properties-common -y",
+      "sudo apt-add-repository ppa:ansible/ansible",
+      "sudo apt-get update",
+      "sudo apt-get install ansible -y"
+    ]
+  }, {
+    "type": "file",
+    "source": "{{user `ssh_public_key_file`}}",
+    "destination": "{{user `ssh_public_key_dest`}}"
+  }, {
+    "type": "ansible-local",
+    "playbook_file": "{{template_dir}}/ansible/playbook.yml",
+    "extra_arguments": [
+      "--extra-vars \"ssh_public_key_file={{user `ssh_public_key_dest`}}\"",
+      "--extra-vars \"app_name={{user `app_name`}}\""
+    ]
+  }]
+}
