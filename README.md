@@ -1,13 +1,19 @@
-# Terraform Server Template
+# Haterblock
 
-A very minimal template for Terraform + Ansible + Dokku
+To start your Phoenix server:
 
-## How to Bootstrap
+  * Install dependencies with `mix deps.get`
+  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
+  * Start Phoenix endpoint with `mix phx.server`
 
-- Clone the repo with `git clone git@github.com:calderalabs/terraform-server-template.git`
-- Rename `.env-example` to `.env` and fill in empty variables
-- Run `brew install ansible`
-- Run `./bin/terraform/init`
-- Run `./bin/packer`
-- Run `./bin/create-env production`
-- Run `./bin/deploy production`
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+
+Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+
+## Learn more
+
+  * Official website: http://www.phoenixframework.org/
+  * Guides: http://phoenixframework.org/docs/overview
+  * Docs: https://hexdocs.pm/phoenix
+  * Mailing list: http://groups.google.com/group/phoenix-talk
+  * Source: https://github.com/phoenixframework/phoenix
