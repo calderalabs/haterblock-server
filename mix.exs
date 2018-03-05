@@ -43,7 +43,8 @@ defmodule Haterblock.Mixfile do
       {:cowboy, "~> 1.0"},
       {:ueberauth, "~> 0.4"},
       {:ueberauth_google, github: "calderalabs/ueberauth_google", tag: "v0.7.1"},
-      {:cors_plug, "~> 1.5"}
+      {:cors_plug, "~> 1.5"},
+      {:joken, "~> 1.5"}
     ]
   end
 

@@ -9,5 +9,6 @@ defmodule HaterblockWeb.Router do
     pipe_through :api
 
     post "/auth/:provider/callback", AuthController, :callback
+    get "/users/me", UserController, :show
   end
 end
