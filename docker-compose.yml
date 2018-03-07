@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: ""
 
   elixir:
+    build: .
     image: elixir
-    depends_on:
+    links:
       - db
