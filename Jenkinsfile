@@ -3,6 +3,7 @@ pipeline {
   stages {
     stage('Docker up') {
       steps {
+        sh './bin/ci/install_docker_compose.sh'
         sh 'docker-compose up -d'
       }
     }
