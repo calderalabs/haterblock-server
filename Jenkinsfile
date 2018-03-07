@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'elixir'
-    }
-    
-  }
+  agent any
   stages {
     stage('Build') {
       steps {
@@ -14,6 +9,7 @@ pipeline {
     stage('Test') {
       steps {
         sh 'mix test'
+        sh 'docker-compose down'
       }
     }
   }
