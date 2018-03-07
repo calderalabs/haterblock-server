@@ -1,12 +1,15 @@
-db:
-  image: postgres
-  ports:
-    - 5432
-  environment:
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: ""
+version: '3'
 
-elixir:
-  image: elixir
-  depends_on:
-    - db
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ""
+
+  elixir:
+    image: elixir
+    depends_on:
+      - db
