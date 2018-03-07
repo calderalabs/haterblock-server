@@ -1,3 +1,4 @@
 #!/bin/bash
-
-mix do deps.get, deps.compile, compile
+mix local.hex --force
+mix local.rebar --force
+mix do deps.get, deps.compile
