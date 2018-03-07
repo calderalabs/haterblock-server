@@ -11,5 +11,10 @@ pipeline {
         sh './bin/ci/build.sh'
       }
     }
+    stage('Test') {
+      steps {
+        sh 'mix test'
+      }
+    }
   }
 }
