@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'mix deps.get'
+        sh './bin/ci/build.sh'
       }
     }
   }
