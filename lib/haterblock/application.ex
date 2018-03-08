@@ -11,7 +11,7 @@ defmodule Haterblock.Application do
       # Start the Ecto repository
       supervisor(Haterblock.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(HaterblockWeb.Endpoint, []),
+      supervisor(HaterblockWeb.Endpoint, [])
       # Start your own worker by calling: Haterblock.Worker.start_link(arg1, arg2, arg3)
       # worker(Haterblock.Worker, [arg1, arg2, arg3]),
     ]

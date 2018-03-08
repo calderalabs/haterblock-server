@@ -18,11 +18,16 @@ defmodule HaterblockWeb.UserControllerTest do
 
   describe "show" do
     test "show user", %{conn: conn} do
-      create_user()
-      conn = get conn, user_path(conn, :show)
-      assert json_response(conn, 200)["data"] ==  %{
-        "id" => 1,
-        "google_id" => "some google id"}
+      {:ok, user: user} = create_user()
+      token = Haterblock.Auth.generate_token(%{sub: user.id}).token
+
+      response =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> get(user_path(conn, :show))
+        |> json_response(200)
+
+      assert response["data"] == %{"id" => user.id, "google_id" => "some google id"}
     end
   end
 
