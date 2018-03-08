@@ -4,8 +4,8 @@ defmodule HaterblockWeb.UserController do
   alias Haterblock.Accounts
   alias Haterblock.Accounts.User
 
-  action_fallback HaterblockWeb.FallbackController
-  plug HaterblockWeb.Plugs.Authenticated
+  action_fallback(HaterblockWeb.FallbackController)
+  plug(HaterblockWeb.Plugs.Authenticated)
 
   def show(conn, _params) do
     render(conn, "show.json", user: conn.assigns.current_user)

@@ -3,9 +3,8 @@ defmodule Haterblock.Accounts.User do
   import Ecto.Changeset
   alias Haterblock.Accounts.User
 
-
   schema "users" do
-    field :google_id, :string
+    field(:google_id, :string)
 
     timestamps()
   end

@@ -2,13 +2,13 @@ defmodule HaterblockWeb.Router do
   use HaterblockWeb, :router
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   scope "/", HaterblockWeb do
-    pipe_through :api
+    pipe_through(:api)
 
-    post "/auth/:provider/callback", AuthController, :callback
-    get "/users/me", UserController, :show
+    post("/auth/:provider/callback", AuthController, :callback)
+    get("/users/me", UserController, :show)
   end
 end

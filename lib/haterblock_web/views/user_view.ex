@@ -11,7 +11,6 @@ defmodule HaterblockWeb.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
-      google_id: user.google_id}
+    %{id: user.id, google_id: user.google_id}
   end
 end
