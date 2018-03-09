@@ -13,7 +13,7 @@ defmodule HaterblockWeb.Plugs.Authenticated do
           %Joken.Token{error: nil, claims: %{"sub" => sub}} ->
             conn |> assign(:current_user, Accounts.get_user!(sub))
 
-          %Joken.Token{error: error} ->
+          %Joken.Token{error: _error} ->
             conn
             |> put_status(:unauthorized)
             |> render(HaterblockWeb.ErrorView, :"401")

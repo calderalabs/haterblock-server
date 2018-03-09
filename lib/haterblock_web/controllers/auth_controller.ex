@@ -7,7 +7,10 @@ defmodule HaterblockWeb.AuthController do
   action_fallback(HaterblockWeb.FallbackController)
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
-    with {:ok, %User{} = user} <- Accounts.find_or_create_by_google_id(auth.uid) do
+    with {:ok, %User{} = user} <-
+           Accounts.update_or_create_by_google_id(auth.uid, %{
+             google_token: auth.credentials.token
+           }) do
       conn
       |> put_status(:ok)
       |> put_resp_header("location", user_path(conn, :show))

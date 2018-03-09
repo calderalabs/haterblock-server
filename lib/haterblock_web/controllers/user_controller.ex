@@ -1,9 +1,6 @@
 defmodule HaterblockWeb.UserController do
   use HaterblockWeb, :controller
 
-  alias Haterblock.Accounts
-  alias Haterblock.Accounts.User
-
   action_fallback(HaterblockWeb.FallbackController)
   plug(HaterblockWeb.Plugs.Authenticated)
 

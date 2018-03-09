@@ -6,8 +6,11 @@ defmodule Haterblock.AccountsTest do
   describe "users" do
     alias Haterblock.Accounts.User
 
-    @valid_attrs %{google_id: "some google id"}
-    @update_attrs %{google_id: "some updated google id"}
+    @valid_attrs %{google_id: "some google id", google_token: "some google token"}
+    @update_attrs %{
+      google_id: "some updated google id",
+      google_token: "some updated google token"
+    }
     @invalid_attrs %{google_id: nil}
 
     def user_fixture(attrs \\ %{}) do

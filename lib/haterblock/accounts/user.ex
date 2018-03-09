@@ -5,6 +5,7 @@ defmodule Haterblock.Accounts.User do
 
   schema "users" do
     field(:google_id, :string)
+    field(:google_token, :string)
 
     timestamps()
   end
@@ -12,7 +13,7 @@ defmodule Haterblock.Accounts.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:google_id])
-    |> validate_required([:google_id])
+    |> cast(attrs, [:google_id, :google_token])
+    |> validate_required([:google_id, :google_token])
   end
 end

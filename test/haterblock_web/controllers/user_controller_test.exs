@@ -3,7 +3,7 @@ defmodule HaterblockWeb.UserControllerTest do
 
   alias Haterblock.Accounts
 
-  @create_attrs %{google_id: "some google id"}
+  @create_attrs %{google_id: "some google id", google_token: "some google token"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
@@ -25,7 +25,7 @@ defmodule HaterblockWeb.UserControllerTest do
         |> get(user_path(conn, :show))
         |> json_response(200)
 
-      assert response["data"] == %{"id" => user.id, "google_id" => "some google id"}
+      assert response["data"] == %{"id" => user.id}
     end
   end
 

@@ -6,9 +6,9 @@ defmodule Haterblock.Mixfile do
       app: :haterblock,
       version: "0.0.1",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
     ]
@@ -26,7 +26,7 @@ defmodule Haterblock.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -44,7 +44,8 @@ defmodule Haterblock.Mixfile do
       {:ueberauth, "~> 0.4"},
       {:ueberauth_google, github: "calderalabs/ueberauth_google", tag: "v0.7.1"},
       {:cors_plug, "~> 1.5"},
-      {:joken, "~> 1.5"}
+      {:joken, "~> 1.5"},
+      {:google_api_storage, "~> 0.0.1"}
     ]
   end
 
@@ -58,7 +59,7 @@ defmodule Haterblock.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end

@@ -55,10 +55,12 @@ defmodule Haterblock.Accounts do
     |> Repo.insert()
   end
 
-  def find_or_create_by_google_id(google_id) do
+  def update_or_create_by_google_id(google_id, attrs \\ %{}) do
+    user_attrs = attrs |> Map.put(:google_id, google_id)
+
     case Repo.get_by(User, google_id: google_id) do
-      nil -> create_user(%{google_id: google_id})
-      user -> {:ok, user}
+      nil -> create_user(user_attrs)
+      user -> update_user(user, user_attrs)
     end
   end
 
