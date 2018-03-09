@@ -1,5 +1,6 @@
 defmodule HaterblockWeb.AuthControllerTest do
   use HaterblockWeb.ConnCase
+
   alias Haterblock.Accounts
   alias Haterblock.Accounts.User
 

@@ -3,10 +3,10 @@ defmodule HaterblockWeb.Plugs.Authenticated do
   alias Haterblock.Accounts
 
   def call(conn, _params) do
-    [authorization] = conn |> get_req_header("authorization")
+    authorization = conn |> get_req_header("authorization")
 
     case authorization do
-      "Bearer " <> token ->
+      ["Bearer " <> token] ->
         verified_token = Haterblock.Auth.verify_token(token)
 
         case verified_token do

@@ -2,10 +2,8 @@ defmodule HaterblockWeb.UserControllerTest do
   use HaterblockWeb.ConnCase
 
   alias Haterblock.Accounts
-  alias Haterblock.Accounts.User
 
   @create_attrs %{google_id: "some google id"}
-  @invalid_attrs %{google_id: nil}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
