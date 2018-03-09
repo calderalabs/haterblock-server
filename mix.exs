@@ -45,7 +45,7 @@ defmodule Haterblock.Mixfile do
       {:ueberauth_google, github: "calderalabs/ueberauth_google", tag: "v0.7.1"},
       {:cors_plug, "~> 1.5"},
       {:joken, "~> 1.5"},
-      {:google_api_storage, "~> 0.0.1"}
+      {:google_api_you_tube, "~> 0.0.1"}
     ]
   end
 
