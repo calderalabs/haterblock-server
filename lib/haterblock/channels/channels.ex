@@ -21,12 +21,7 @@ defmodule Haterblock.Channels do
     Repo.all(Comment)
   end
 
-  def list_youtube_comments(token) do
-    list_youtube_videos(token)
-    |> Enum.map(&list_youtube_comments(token, &1))
-  end
-
-  def list_youtube_comments(token, %{video_id: video_id}) do
+  def list_youtube_comments(token, video_id) do
     conn = GoogleApi.YouTube.V3.Connection.new(token)
 
     GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(
@@ -36,18 +31,6 @@ defmodule Haterblock.Channels do
         {:videoId, video_id}
       ]
     )
-  end
-
-  def list_youtube_videos(token) do
-    conn = GoogleApi.YouTube.V3.Connection.new(token)
-
-    {:ok, videos} =
-      GoogleApi.YouTube.V3.Api.Videos.youtube_videos_list(
-        conn,
-        "id"
-      )
-
-    Enum.map(videos.items, &Map.get(&1, :id))
   end
 
   @doc """
