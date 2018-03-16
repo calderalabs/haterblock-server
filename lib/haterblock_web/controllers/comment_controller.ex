@@ -4,7 +4,7 @@ defmodule HaterblockWeb.CommentController do
   alias Haterblock.Channels
   alias Haterblock.Channels.Comment
 
-  action_fallback HaterblockWeb.FallbackController
+  action_fallback(HaterblockWeb.FallbackController)
 
   def index(conn, _params) do
     comments = Channels.list_comments()
@@ -26,15 +26,18 @@ defmodule HaterblockWeb.CommentController do
   end
 
   def update(conn, %{"id" => id, "comment" => comment_params}) do
-    comment = Channels.get_comment!(id)
+    # comment = Channels.get_comment!(id)
 
-    with {:ok, %Comment{} = comment} <- Channels.update_comment(comment, comment_params) do
-      render(conn, "show.json", comment: comment)
-    end
+    # with {:ok, %Comment{} = comment} <- Channels.update_comment(comment, comment_params) do
+    #   render(conn, "show.json", comment: comment)
+    # end
+
+    json(conn, %{})
   end
 
   def delete(conn, %{"id" => id}) do
     comment = Channels.get_comment!(id)
+
     with {:ok, %Comment{}} <- Channels.delete_comment(comment) do
       send_resp(conn, :no_content, "")
     end

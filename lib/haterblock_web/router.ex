@@ -10,6 +10,6 @@ defmodule HaterblockWeb.Router do
 
     post("/auth/:provider/callback", AuthController, :callback)
     get("/users/me", UserController, :show)
-    resources("/comments", CommentController, only: [:index])
+    resources("/comments", CommentController, only: [:index, :update])
   end
 end
