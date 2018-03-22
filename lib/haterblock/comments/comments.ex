@@ -1,12 +1,12 @@
-defmodule Haterblock.Channels do
+defmodule Haterblock.Comments do
   @moduledoc """
-  The Channels context.
+  The Comments context.
   """
 
   import Ecto.Query, warn: false
   alias Haterblock.Repo
 
-  alias Haterblock.Channels.Comment
+  alias Haterblock.Comments.Comment
 
   @doc """
   Returns the list of comments.
@@ -19,57 +19,6 @@ defmodule Haterblock.Channels do
   """
   def list_comments do
     Repo.all(Comment)
-  end
-
-  def list_youtube_videos(user) do
-    conn = GoogleApi.YouTube.V3.Connection.new(user.google_token)
-
-    {:ok, channels} =
-      GoogleApi.YouTube.V3.Api.Channels.youtube_channels_list(conn, "contentDetails", [
-        {:mine, true}
-      ])
-
-    items =
-      channels.items
-      |> Enum.at(0)
-
-    uploadsPlaylist = items.contentDetails.relatedPlaylists.uploads
-
-    {:ok, uploadedVideos} =
-      GoogleApi.YouTube.V3.Api.PlaylistItems.youtube_playlist_items_list(conn, "contentDetails", [
-        {:playlistId, uploadsPlaylist}
-      ])
-
-    uploadedVideos.items
-    |> Enum.flat_map(fn item ->
-      list_youtube_comments(user, item.contentDetails.videoId)
-    end)
-  end
-
-  def list_youtube_comments(user, video_id) do
-    conn = GoogleApi.YouTube.V3.Connection.new(user.google_token)
-
-    {:ok, %{items: comment_threads}} =
-      GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(
-        conn,
-        "id,snippet,replies",
-        [
-          {:videoId, video_id}
-        ]
-      )
-
-    comment_threads
-    |> Enum.flat_map(fn comment_thread ->
-      replies =
-        if comment_thread.replies != nil do
-          comment_thread.replies.comments
-        else
-          []
-        end
-
-      [comment_thread.snippet.topLevelComment] ++ replies
-    end)
-    |> Enum.map(&Comment.from_youtube_comment/1)
   end
 
   @doc """
