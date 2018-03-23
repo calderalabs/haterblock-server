@@ -7,6 +7,7 @@ defmodule Haterblock.Comments.Comment do
     field(:body, :string)
     field(:google_id, :string)
     field(:score, :integer)
+    field(:user_id, :integer)
 
     timestamps()
   end
