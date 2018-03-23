@@ -11,8 +11,6 @@ defmodule HaterblockWeb.CommentView do
   end
 
   def render("comment.json", %{comment: comment}) do
-    %{id: comment.id,
-      body: comment.body,
-      google_id: comment.google_id}
+    %{id: comment.id, body: comment.body, google_id: comment.google_id, score: comment.score}
   end
 end
