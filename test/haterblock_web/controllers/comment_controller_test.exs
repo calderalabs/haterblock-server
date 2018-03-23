@@ -4,9 +4,9 @@ defmodule HaterblockWeb.CommentControllerTest do
   alias Haterblock.Comments
   alias Haterblock.Comments.Comment
 
-  @create_attrs %{body: "some body", google_id: "some google_id"}
-  @update_attrs %{body: "some updated body", google_id: "some updated google_id"}
-  @invalid_attrs %{body: nil, google_id: nil}
+  @create_attrs %{body: "some body", google_id: "some google_id", score: 0}
+  @update_attrs %{body: "some updated body", google_id: "some updated google_id", score: 1}
+  @invalid_attrs %{body: nil, google_id: nil, score: nil}
 
   def fixture(:comment) do
     {:ok, comment} = Comments.create_comment(@create_attrs)
@@ -24,26 +24,6 @@ defmodule HaterblockWeb.CommentControllerTest do
     end
   end
 
-  describe "create comment" do
-    test "renders comment when data is valid", %{conn: conn} do
-      conn = post(conn, comment_path(conn, :create), comment: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get(conn, comment_path(conn, :show, id))
-
-      assert json_response(conn, 200)["data"] == %{
-               "id" => id,
-               "body" => "some body",
-               "google_id" => "some google_id"
-             }
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, comment_path(conn, :create), comment: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
   describe "update comment" do
     setup [:create_comment]
 
@@ -56,26 +36,14 @@ defmodule HaterblockWeb.CommentControllerTest do
       assert json_response(conn, 200)["data"] == %{
                "id" => id,
                "body" => "some updated body",
-               "google_id" => "some updated google_id"
+               "google_id" => "some updated google_id",
+               "score" => 1
              }
     end
 
     test "renders errors when data is invalid", %{conn: conn, comment: comment} do
       conn = put(conn, comment_path(conn, :update, comment), comment: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete comment" do
-    setup [:create_comment]
-
-    test "deletes chosen comment", %{conn: conn, comment: comment} do
-      conn = delete(conn, comment_path(conn, :delete, comment))
-      assert response(conn, 204)
-
-      assert_error_sent(404, fn ->
-        get(conn, comment_path(conn, :show, comment))
-      end)
     end
   end
 
