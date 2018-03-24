@@ -34,7 +34,7 @@ defmodule Haterblock.Sync do
 
     new_youtube_comments |> Enum.each(&Haterblock.Repo.insert/1)
 
-    if new_youtube_comments |> Enum.member?(youtube_comments |> List.last()) do
+    if next_page && new_youtube_comments |> Enum.member?(youtube_comments |> List.last()) do
       sync_user_comments(user, %{page: next_page, last_comment: last_comment})
     else
       :ok
