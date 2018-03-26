@@ -1,14 +1,10 @@
 defmodule Haterblock.Youtube do
-  def list_comments(user) do
+  def list_comments(user, %{page: page} \\ %{page: nil}) do
     conn = conn(user)
-    channels = conn |> list_channels
-    uploads = conn |> list_uploads(channels |> Enum.at(0))
+    channel = conn |> list_channels |> Enum.at(0)
 
-    comment_threads =
-      uploads
-      |> Enum.flat_map(fn playlist_item ->
-        conn |> list_comment_threads(playlist_item.contentDetails.videoId)
-      end)
+    %{comment_threads: comment_threads, next_page: next_page} =
+      conn |> list_comment_threads(channel, page)
 
     comments =
       comment_threads
@@ -23,8 +19,15 @@ defmodule Haterblock.Youtube do
         [comment_thread.snippet.topLevelComment] ++ replies
       end)
 
-    comments
-    |> Haterblock.Comments.Comment.from_youtube_comments()
+    comments =
+      comments
+      |> Enum.sort_by(& &1.snippet.publishedAt, &>=/2)
+      |> Haterblock.Comments.Comment.from_youtube_comments()
+      |> Enum.map(fn comment ->
+        %{comment | user_id: user.id}
+      end)
+
+    %{comments: comments, next_page: next_page}
   end
 
   defp conn(user) do
@@ -40,27 +43,17 @@ defmodule Haterblock.Youtube do
     channels
   end
 
-  defp list_comment_threads(conn, video_id) do
-    {:ok, %{items: comment_threads}} =
+  defp list_comment_threads(conn, channel, page) do
+    {:ok, %{items: comment_threads, nextPageToken: next_page}} =
       GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(
         conn,
         "id,snippet,replies",
         [
-          {:videoId, video_id}
+          {:allThreadsRelatedToChannelId, channel.id},
+          {:pageToken, page}
         ]
       )
 
-    comment_threads
-  end
-
-  defp list_uploads(conn, channel) do
-    uploads_playlist = channel.contentDetails.relatedPlaylists.uploads
-
-    {:ok, %{items: uploads}} =
-      GoogleApi.YouTube.V3.Api.PlaylistItems.youtube_playlist_items_list(conn, "contentDetails", [
-        {:playlistId, uploads_playlist}
-      ])
-
-    uploads
+    %{comment_threads: comment_threads, next_page: next_page}
   end
 end
