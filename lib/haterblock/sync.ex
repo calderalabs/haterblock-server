@@ -10,32 +10,30 @@ defmodule Haterblock.Sync do
 
   defp sync_user_comments(
          user,
-         %{page: page, last_comment: last_comment} \\ %{page: nil, last_comment: nil}
+         %{page: page} \\ %{page: nil}
        ) do
     %{next_page: next_page, comments: youtube_comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
 
-    last_comment_query =
+    existing_youtube_comments_ids =
       from(
         c in Haterblock.Comments.Comment,
-        where: c.user_id == ^user.id,
-        order_by: [desc: c.inserted_at]
+        select: c.google_id,
+        where: c.google_id in ^Enum.map(youtube_comments, & &1.google_id)
       )
-      |> first
-
-    last_comment = last_comment || Haterblock.Repo.one(last_comment_query)
+      |> Haterblock.Repo.all()
 
     new_youtube_comments =
       youtube_comments
-      |> Enum.take_while(fn youtube_comment ->
-        !last_comment || youtube_comment.google_id != last_comment.google_id
+      |> Enum.filter(fn youtube_comment ->
+        !(existing_youtube_comments_ids |> Enum.member?(youtube_comment.google_id))
       end)
       |> Haterblock.GoogleNlp.assign_sentiment_scores()
 
     new_youtube_comments |> Enum.each(&Haterblock.Repo.insert/1)
 
-    if next_page && new_youtube_comments |> Enum.member?(youtube_comments |> List.last()) do
-      sync_user_comments(user, %{page: next_page, last_comment: last_comment})
+    if next_page && Enum.count(new_youtube_comments) == Enum.count(youtube_comments) do
+      sync_user_comments(user, %{page: next_page})
     else
       :ok
     end

@@ -56,7 +56,6 @@ defmodule Haterblock.Youtube do
 
     comments =
       comments
-      |> Enum.sort_by(& &1.snippet.publishedAt, &>=/2)
       |> Haterblock.Comments.Comment.from_youtube_comments()
       |> Enum.map(fn comment ->
         %{comment | user_id: user.id}
@@ -92,6 +91,7 @@ defmodule Haterblock.Youtube do
           "id,snippet,replies",
           [
             {:allThreadsRelatedToChannelId, channel.id},
+            {:maxResults, 100},
             {:pageToken, page}
           ]
         )
