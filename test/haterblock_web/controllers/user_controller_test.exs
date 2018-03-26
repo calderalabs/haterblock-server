@@ -3,7 +3,11 @@ defmodule HaterblockWeb.UserControllerTest do
 
   alias Haterblock.Accounts
 
-  @create_attrs %{google_id: "some google id", google_token: "some google token"}
+  @create_attrs %{
+    google_id: "some google id",
+    google_token: "some google token",
+    google_refresh_token: "some google refresh token"
+  }
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)

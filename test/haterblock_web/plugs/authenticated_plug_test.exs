@@ -32,7 +32,9 @@ defmodule HaterblockWeb.AuthenticatedPlugTest do
     end
 
     test "call/2 assigns the current user with valid token", %{conn: conn} do
-      {:ok, user} = Accounts.create_user(%{google_id: "1", google_token: "123"})
+      {:ok, user} =
+        Accounts.create_user(%{google_id: "1", google_token: "123", google_refresh_token: "456"})
+
       token = Haterblock.Auth.generate_token(%{sub: user.id}).token
 
       conn =

@@ -46,7 +46,9 @@ defmodule Haterblock.Mixfile do
       {:cors_plug, "~> 1.5"},
       {:joken, "~> 1.5"},
       {:google_api_you_tube, "~> 0.0.1"},
-      {:google_api_language, "~> 0.0.1"}
+      {:google_api_language, "~> 0.0.1"},
+      {:poison, "~> 3.1"},
+      {:httpoison, "~> 1.0"}
     ]
   end
 

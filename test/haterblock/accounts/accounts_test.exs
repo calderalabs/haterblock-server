@@ -6,7 +6,11 @@ defmodule Haterblock.AccountsTest do
   describe "users" do
     alias Haterblock.Accounts.User
 
-    @valid_attrs %{google_id: "some google id", google_token: "some google token"}
+    @valid_attrs %{
+      google_id: "some google id",
+      google_token: "some google token",
+      google_refresh_token: "some google refresh token"
+    }
     @update_attrs %{
       google_id: "some updated google id",
       google_token: "some updated google token"
