@@ -45,21 +45,12 @@ defmodule Haterblock.Comments do
     if !sentiment do
       query
     else
-      {min, max} = range_for_sentiment(sentiment)
+      {min, max} = Comment.range_for_sentiment(sentiment)
 
       from(
         c in query,
         where: c.score >= ^min and c.score <= ^max
       )
-    end
-  end
-
-  defp range_for_sentiment(sentiment) do
-    case sentiment do
-      "positive" -> {5, 10}
-      "neutral" -> {-3, 4}
-      "negative" -> {-6, -4}
-      "hateful" -> {-10, -7}
     end
   end
 

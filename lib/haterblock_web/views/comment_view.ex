@@ -1,6 +1,7 @@
 defmodule HaterblockWeb.CommentView do
   use HaterblockWeb, :view
   alias HaterblockWeb.CommentView
+  alias Haterblock.Comments.Comment
 
   def render("index.json", %{collection: collection}) do
     %{
@@ -21,7 +22,11 @@ defmodule HaterblockWeb.CommentView do
   def render("comment.json", %{comment: comment}) do
     %{
       id: comment.id,
-      attributes: %{body: comment.body, score: comment.score, status: comment.status}
+      attributes: %{
+        body: comment.body,
+        sentiment: Comment.sentiment_from_score(comment.score),
+        status: comment.status
+      }
     }
   end
 end
