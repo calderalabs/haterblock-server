@@ -1,6 +1,6 @@
 defmodule Haterblock.GoogleNlp do
   def assign_sentiment_scores(comments) do
-    comments |> Enum.map(&assign_sentiment_score/1)
+    comments |> Parallel.pmap(&assign_sentiment_score/1)
   end
 
   def assign_sentiment_score(comment) do
