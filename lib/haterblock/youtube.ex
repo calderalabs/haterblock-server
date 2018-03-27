@@ -31,6 +31,9 @@ defmodule Haterblock.Youtube do
 
           request(updated_user, fun)
         end
+
+      {:error, %{status: 204} = response} ->
+        {:ok, response}
     end
   end
 
@@ -62,6 +65,22 @@ defmodule Haterblock.Youtube do
       end)
 
     %{comments: comments, next_page: next_page}
+  end
+
+  def reject_comments(comments, user) do
+    with {:ok, _} <-
+           request(user, fn user ->
+             conn = conn(user)
+             ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")
+
+             GoogleApi.YouTube.V3.Api.Comments.youtube_comments_set_moderation_status(
+               conn,
+               ids,
+               "rejected"
+             )
+           end) do
+      {:ok}
+    end
   end
 
   defp conn(user) do

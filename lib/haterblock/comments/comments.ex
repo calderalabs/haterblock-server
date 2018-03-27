@@ -21,6 +21,14 @@ defmodule Haterblock.Comments do
     Repo.all(Comment)
   end
 
+  def list_comments(ids) do
+    from(
+      c in Comment,
+      where: c.id in ^ids
+    )
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single comment.
 
@@ -100,5 +108,19 @@ defmodule Haterblock.Comments do
   """
   def change_comment(%Comment{} = comment) do
     Comment.changeset(comment, %{})
+  end
+
+  def reject_comments(comments, user) do
+    with {:ok} <- Haterblock.Youtube.reject_comments(comments, user) do
+      updated_comments =
+        comments
+        |> Enum.map(fn comment ->
+          with {:ok, comment} <- update_comment(comment, %{status: "rejected"}) do
+            comment
+          end
+        end)
+
+      {:ok, updated_comments}
+    end
   end
 end

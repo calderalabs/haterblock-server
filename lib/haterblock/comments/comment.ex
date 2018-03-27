@@ -8,6 +8,7 @@ defmodule Haterblock.Comments.Comment do
     field(:google_id, :string)
     field(:score, :integer)
     field(:user_id, :integer)
+    field(:status, :string)
 
     timestamps()
   end
@@ -15,14 +16,15 @@ defmodule Haterblock.Comments.Comment do
   @doc false
   def changeset(%Comment{} = comment, attrs) do
     comment
-    |> cast(attrs, [:body, :google_id, :score])
-    |> validate_required([:body, :google_id, :score])
+    |> cast(attrs, [:body, :google_id, :score, :status])
+    |> validate_required([:body, :google_id, :score, :status])
   end
 
   def from_youtube_comment(youtube_comment) do
     %Comment{
       google_id: youtube_comment.id,
-      body: youtube_comment.snippet.textDisplay
+      body: youtube_comment.snippet.textDisplay,
+      status: youtube_comment.snippet.moderationStatus || "published"
     }
   end
 
