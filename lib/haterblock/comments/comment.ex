@@ -31,4 +31,23 @@ defmodule Haterblock.Comments.Comment do
   def from_youtube_comments(youtube_comments) do
     youtube_comments |> Enum.map(&from_youtube_comment/1)
   end
+
+  def sentiment_from_score(score) do
+    case score do
+      x when x in 5..10 -> "positive"
+      x when x in -3..4 -> "neutral"
+      x when x in -6..-4 -> "negative"
+      x when x in -10..-7 -> "hateful"
+      _ -> raise("Invalid Sentiment")
+    end
+  end
+
+  def range_for_sentiment(sentiment) do
+    case sentiment do
+      "positive" -> {5, 10}
+      "neutral" -> {-3, 4}
+      "negative" -> {-6, -4}
+      "hateful" -> {-10, -7}
+    end
+  end
 end
