@@ -2,8 +2,16 @@ defmodule HaterblockWeb.CommentView do
   use HaterblockWeb, :view
   alias HaterblockWeb.CommentView
 
-  def render("index.json", %{comments: comments}) do
-    %{data: render_many(comments, CommentView, "comment.json")}
+  def render("index.json", %{collection: collection}) do
+    %{
+      data: render_many(collection.entries, CommentView, "comment.json"),
+      meta: %{
+        page_number: collection.page_number,
+        page_size: collection.page_size,
+        total_pages: collection.total_pages,
+        total_entries: collection.total_entries
+      }
+    }
   end
 
   def render("show.json", %{comment: comment}) do

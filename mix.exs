@@ -49,7 +49,8 @@ defmodule Haterblock.Mixfile do
       {:google_api_language, "~> 0.0.1"},
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.0"},
-      {:ibrowse, "~> 4.4.0"}
+      {:ibrowse, "~> 4.4.0"},
+      {:scrivener_ecto, "~> 1.0"}
     ]
   end
 

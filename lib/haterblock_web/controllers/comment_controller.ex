@@ -6,8 +6,10 @@ defmodule HaterblockWeb.CommentController do
   action_fallback(HaterblockWeb.FallbackController)
   plug(HaterblockWeb.Plugs.Authenticated)
 
-  def index(conn, _params) do
-    comments = Comments.list_comments_for_user(conn.assigns.current_user)
-    render(conn, "index.json", comments: comments)
+  def index(conn, params) do
+    collection =
+      Comments.list_comments_for_user(conn.assigns.current_user, %{page: Map.get(params, :page)})
+
+    render(conn, "index.json", collection: collection)
   end
 end

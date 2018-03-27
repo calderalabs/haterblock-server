@@ -29,12 +29,12 @@ defmodule Haterblock.Comments do
     |> Repo.all()
   end
 
-  def list_comments_for_user(user) do
+  def list_comments_for_user(user, %{page: page} \\ %{page: 1}) do
     from(
       c in Comment,
       where: c.user_id == ^user.id
     )
-    |> Repo.all()
+    |> Repo.paginate(page: page)
   end
 
   @doc """
