@@ -29,6 +29,14 @@ defmodule Haterblock.Comments do
     |> Repo.all()
   end
 
+  def list_comments_for_user(user) do
+    from(
+      c in Comment,
+      where: c.user_id == ^user.id
+    )
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single comment.
 
