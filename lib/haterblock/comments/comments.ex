@@ -29,12 +29,38 @@ defmodule Haterblock.Comments do
     |> Repo.all()
   end
 
-  def list_comments_for_user(user, %{page: page} \\ %{page: 1}) do
+  def list_comments_for_user(
+        user,
+        %{page: page, sentiment: sentiment} \\ %{page: 1, sentiment: nil}
+      ) do
     from(
       c in Comment,
       where: c.user_id == ^user.id
     )
+    |> comments_for_sentiment(sentiment)
     |> Repo.paginate(page: page)
+  end
+
+  defp comments_for_sentiment(query, sentiment) do
+    if !sentiment do
+      query
+    else
+      {min, max} = range_for_sentiment(sentiment)
+
+      from(
+        c in query,
+        where: c.score >= ^min and c.score <= ^max
+      )
+    end
+  end
+
+  defp range_for_sentiment(sentiment) do
+    case sentiment do
+      "positive" -> {5, 10}
+      "neutral" -> {-3, 4}
+      "negative" -> {-6, -4}
+      "hateful" -> {-10, -7}
+    end
   end
 
   @doc """
