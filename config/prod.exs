@@ -65,5 +65,4 @@ config :logger, level: :info
 
 config :haterblock, Haterblock.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: System.get_env("DATABASE_URL"),
   pool_size: 20
