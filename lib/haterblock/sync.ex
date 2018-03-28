@@ -12,27 +12,35 @@ defmodule Haterblock.Sync do
          user,
          %{page: page} \\ %{page: nil}
        ) do
-    %{next_page: next_page, comments: youtube_comments} =
+    %{next_page: next_page, comments: comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
 
-    existing_youtube_comments_ids =
+    recent_comments =
+      comments
+      |> Enum.filter(fn comment ->
+        DateTime.compare(comment.published_at, Timex.shift(Timex.now(), years: -10)) != :lt
+      end)
+
+    existing_comments_ids =
       from(
         c in Haterblock.Comments.Comment,
         select: c.google_id,
-        where: c.google_id in ^Enum.map(youtube_comments, & &1.google_id)
+        where: c.google_id in ^Enum.map(recent_comments, & &1.google_id)
       )
       |> Haterblock.Repo.all()
 
-    new_youtube_comments =
-      youtube_comments
-      |> Enum.filter(fn youtube_comment ->
-        !(existing_youtube_comments_ids |> Enum.member?(youtube_comment.google_id))
+    new_comments =
+      recent_comments
+      |> Enum.filter(fn comment ->
+        !(existing_comments_ids |> Enum.member?(comment.google_id))
       end)
       |> Haterblock.GoogleNlp.assign_sentiment_scores()
 
-    new_youtube_comments |> Enum.each(&Haterblock.Repo.insert/1)
+    new_comments |> Enum.each(&Haterblock.Repo.insert/1)
+    last_comment = comments |> List.last()
 
-    if next_page && Enum.count(new_youtube_comments) == Enum.count(youtube_comments) do
+    if next_page && Enum.member?(new_comments, last_comment) &&
+         Enum.member?(recent_comments, last_comment) do
       sync_user_comments(user, %{page: next_page})
     else
       :ok
