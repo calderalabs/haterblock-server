@@ -63,3 +63,8 @@ config :logger, level: :info
 # which should be versioned separately.
 
 config :haterblock, HaterblockWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+config :haterblock, HaterblockWeb.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env("DATABASE_URL"),
+  pool_size: 20
