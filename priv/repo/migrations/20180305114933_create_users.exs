@@ -7,7 +7,7 @@ defmodule Haterblock.Repo.Migrations.CreateUsers do
       add(:google_token, :string)
       add(:google_refresh_token, :string)
       add(:email, :string)
-      add(:name, :string)
+      add(:name, :string, null: false)
 
       timestamps()
     end
