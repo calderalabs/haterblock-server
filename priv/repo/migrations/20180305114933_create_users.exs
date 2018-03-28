@@ -3,10 +3,13 @@ defmodule Haterblock.Repo.Migrations.CreateUsers do
 
   def change do
     create table(:users) do
-      add :google_id, :string
+      add(:google_id, :string)
+      add(:google_token, :string)
+      add(:google_refresh_token, :string)
 
       timestamps()
     end
 
+    create(index("users", [:google_id]))
   end
 end
