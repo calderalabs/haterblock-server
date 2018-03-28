@@ -18,12 +18,13 @@ defmodule Haterblock.Comments do
 
   """
   def list_comments do
-    Repo.all(Comment)
+    from(c in base_query())
+    |> Repo.all()
   end
 
   def list_comments(ids) do
     from(
-      c in Comment,
+      c in base_query(),
       where: c.id in ^ids
     )
     |> Repo.all()
@@ -34,7 +35,7 @@ defmodule Haterblock.Comments do
         %{page: page, sentiment: sentiment} \\ %{page: 1, sentiment: nil}
       ) do
     from(
-      c in Comment,
+      c in base_query(),
       where: c.user_id == ^user.id
     )
     |> comments_for_sentiment(sentiment)
@@ -45,13 +46,20 @@ defmodule Haterblock.Comments do
     if !sentiment do
       query
     else
-      {min, max} = Comment.range_for_sentiment(sentiment)
+      min..max = Comment.range_for_sentiment(sentiment)
 
       from(
         c in query,
         where: c.score >= ^min and c.score <= ^max
       )
     end
+  end
+
+  defp base_query do
+    from(
+      c in Comment,
+      order_by: [desc: c.published_at]
+    )
   end
 
   @doc """
