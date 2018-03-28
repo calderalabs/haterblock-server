@@ -9,7 +9,7 @@ defmodule HaterblockWeb.RejectionController do
   def create(conn, %{"rejection" => %{"ids" => ids}}) do
     comments = Comments.list_comments(ids)
 
-    with {:ok, comments} <- Comments.reject_comments(comments, conn.assigns.current_user) do
+    with {:ok, _} <- Comments.reject_comments(comments, conn.assigns.current_user) do
       json(conn, %{})
     end
   end
