@@ -46,19 +46,7 @@ defmodule Haterblock.Youtube do
 
     comments =
       comment_threads
-      |> Enum.flat_map(fn comment_thread ->
-        replies =
-          if comment_thread.replies != nil do
-            comment_thread.replies.comments
-          else
-            []
-          end
-
-        [comment_thread.snippet.topLevelComment] ++ replies
-      end)
-
-    comments =
-      comments
+      |> Enum.map(& &1.snippet.topLevelComment)
       |> Haterblock.Comments.Comment.from_youtube_comments()
       |> Enum.map(fn comment ->
         %{comment | user_id: user.id}
@@ -105,15 +93,11 @@ defmodule Haterblock.Youtube do
       request(user, fn user ->
         conn = conn(user)
 
-        GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(
-          conn,
-          "id,snippet,replies",
-          [
-            {:allThreadsRelatedToChannelId, channel.id},
-            {:maxResults, 100},
-            {:pageToken, page}
-          ]
-        )
+        GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(conn, "id,snippet", [
+          {:allThreadsRelatedToChannelId, channel.id},
+          {:maxResults, 100},
+          {:pageToken, page}
+        ])
       end)
 
     %{comment_threads: comment_threads, next_page: next_page, user: user}
