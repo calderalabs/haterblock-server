@@ -31,6 +31,8 @@ defmodule HaterblockWeb.AuthController do
       |> put_status(:unauthorized)
       |> render(HaterblockWeb.ErrorView, :"401")
       |> halt
+    else
+      conn
     end
   end
 end
