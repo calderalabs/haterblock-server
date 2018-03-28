@@ -10,7 +10,7 @@ defmodule HaterblockWeb.RejectionController do
     comments = Comments.list_comments(ids)
 
     with {:ok, comments} <- Comments.reject_comments(comments, conn.assigns.current_user) do
-      render(conn, HaterblockWeb.CommentView, "index.json", comments: comments)
+      json(conn, %{})
     end
   end
 end
