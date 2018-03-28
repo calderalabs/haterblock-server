@@ -18,7 +18,7 @@ defmodule Haterblock.Sync do
     recent_comments =
       comments
       |> Enum.filter(fn comment ->
-        DateTime.compare(comment.published_at, Timex.shift(Timex.now(), years: -10)) != :lt
+        DateTime.compare(comment.published_at, Timex.shift(Timex.now(), days: -7)) != :lt
       end)
 
     existing_comments_ids =

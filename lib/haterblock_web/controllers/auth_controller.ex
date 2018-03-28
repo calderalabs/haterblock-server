@@ -7,8 +7,7 @@ defmodule HaterblockWeb.AuthController do
   action_fallback(HaterblockWeb.FallbackController)
 
   @allowed_emails [
-    "noirsuiren@yahoo.it",
-    "suiren@hotmail.it",
+    "serenamatchalatte@gmail.com",
     "eugeniodepalo@gmail.com",
     "nemesys0-1732@pages.plusgoogle.com"
   ]
