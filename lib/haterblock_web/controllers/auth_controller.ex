@@ -10,7 +10,9 @@ defmodule HaterblockWeb.AuthController do
     with {:ok, %User{} = user} <-
            Accounts.update_or_create_by_google_id(auth.uid, %{
              google_token: auth.credentials.token,
-             google_refresh_token: auth.credentials.refresh_token
+             google_refresh_token: auth.credentials.refresh_token,
+             email: auth.info.email,
+             name: auth.info.name
            }) do
       conn
       |> put_status(:ok)
