@@ -12,7 +12,7 @@ config :haterblock, ecto_repos: [Haterblock.Repo]
 config :haterblock, HaterblockWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "8zVRVif4NpQTtBfV5YtbIuEgiYB8k6Pewfbiplwii87QPPi8+JoGEB34DpGGUZqq",
-  render_errors: [view: HaterblockWeb.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: HaterblockWeb.ErrorView, accepts: ~w(json)],
   pubsub: [name: Haterblock.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

@@ -30,15 +30,6 @@ config :haterblock, HaterblockWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :haterblock, HaterblockWeb.Endpoint,
-  live_reload: [
-    patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
-      ~r{priv/gettext/.*(po)$},
-      ~r{lib/haterblock_web/views/.*(ex)$},
-      ~r{lib/haterblock_web/templates/.*(eex)$}
-    ]
-  ]
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
