@@ -25,7 +25,8 @@ defmodule HaterblockWeb.CommentView do
       attributes: %{
         body: comment.body,
         sentiment: Comment.sentiment_from_score(comment.score),
-        status: comment.status
+        status: comment.status,
+        published_at: comment.published_at
       }
     }
   end
