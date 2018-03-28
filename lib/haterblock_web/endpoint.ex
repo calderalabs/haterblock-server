@@ -3,7 +3,7 @@ defmodule HaterblockWeb.Endpoint do
 
   socket("/socket", HaterblockWeb.UserSocket)
 
-  plug(CORSPlug, origin: ["http://localhost:3000"])
+  plug(CORSPlug, origin: ["http://localhost:3000", "https://gethaterblock.com"])
 
   # Serve at "/" the static files from "priv/static" directory.
   #
