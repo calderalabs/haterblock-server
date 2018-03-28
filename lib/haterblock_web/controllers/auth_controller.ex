@@ -6,9 +6,14 @@ defmodule HaterblockWeb.AuthController do
   plug(Ueberauth)
   action_fallback(HaterblockWeb.FallbackController)
 
-  @allowed_names ["nemesys0", "eugeniodepalo", "MatchaLatteVlog"]
+  @allowed_emails [
+    "noirsuiren@yahoo.it",
+    "suiren@hotmail.it",
+    "eugeniodepalo@gmail.com",
+    "nemesys0-1732@pages.plusgoogle.com"
+  ]
 
-  plug(:authorize_name)
+  plug(:authorize_email)
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     with {:ok, %User{} = user} <-
@@ -25,8 +30,8 @@ defmodule HaterblockWeb.AuthController do
     end
   end
 
-  defp authorize_name(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
-    if !Enum.member?(@allowed_names, auth.info.name) do
+  defp authorize_email(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    if !Enum.member?(@allowed_emails, auth.info.email) do
       conn
       |> put_status(:unauthorized)
       |> render(HaterblockWeb.ErrorView, :"401")
