@@ -46,7 +46,7 @@ defmodule Haterblock.Comments do
     if !sentiment do
       query
     else
-      min..max = Comment.range_for_sentiment(sentiment)
+      {min, max} = Comment.range_for_sentiment(sentiment)
 
       from(
         c in query,

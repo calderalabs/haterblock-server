@@ -4,10 +4,10 @@ defmodule Haterblock.Comments.Comment do
   alias Haterblock.Comments.Comment
 
   @ranges %{
-    positive: 5..10,
-    neutral: -3..4,
-    negative: -6..-4,
-    hateful: -10..-7
+    positive: {5, 10},
+    neutral: {-3, 4},
+    negative: {-6, -4},
+    hateful: {-10, -7}
   }
 
   schema "comments" do
@@ -44,21 +44,16 @@ defmodule Haterblock.Comments.Comment do
   end
 
   def sentiment_from_score(score) do
-    case score do
-      x when x in unquote(Macro.escape(@ranges.positive)) -> "positive"
-      x when x in unquote(Macro.escape(@ranges.neutral)) -> "neutral"
-      x when x in unquote(Macro.escape(@ranges.negative)) -> "negative"
-      x when x in unquote(Macro.escape(@ranges.hateful)) -> "hateful"
-      _ -> raise("Invalid Sentiment")
-    end
+    {sentiment, _} =
+      @ranges
+      |> Enum.find(fn {_, range} ->
+        score >= elem(range, 0) && score <= elem(range, 1)
+      end)
+
+    sentiment
   end
 
   def range_for_sentiment(sentiment) do
-    case sentiment do
-      "positive" -> @ranges.positive
-      "neutral" -> @ranges.neutral
-      "negative" -> @ranges.negative
-      "hateful" -> @ranges.hateful
-    end
+    @ranges |> Map.get(sentiment |> String.to_atom())
   end
 end

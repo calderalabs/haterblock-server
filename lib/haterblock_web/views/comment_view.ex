@@ -7,8 +7,6 @@ defmodule HaterblockWeb.CommentView do
     %{
       data: render_many(collection.entries, CommentView, "comment.json"),
       meta: %{
-        page_number: collection.page_number,
-        page_size: collection.page_size,
         total_pages: collection.total_pages,
         total_entries: collection.total_entries
       }
