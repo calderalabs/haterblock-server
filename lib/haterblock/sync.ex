@@ -10,9 +10,10 @@ defmodule Haterblock.Sync do
 
   def sync_user_comments(user) do
     if !user.syncing do
-      turn_on_syncing(user)
-      perform_syncing(user)
-      turn_off_syncing(user)
+      user
+      |> turn_on_syncing
+      |> perform_syncing
+      |> turn_off_syncing
     end
   end
 
@@ -48,15 +49,25 @@ defmodule Haterblock.Sync do
          Enum.member?(recent_comments, last_comment) do
       perform_syncing(user, %{page: next_page})
     else
-      :ok
+      user
     end
   end
 
   defp turn_on_syncing(user) do
-    Haterblock.Accounts.update_user(user, %{syncing: true})
+    with {:ok, user} <- Haterblock.Accounts.update_user(user, %{syncing: true}) do
+      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "user_changed", %{
+        syncing: true
+      })
+
+      user
+    end
   end
 
   defp turn_off_syncing(user) do
-    Haterblock.Accounts.update_user(user, %{syncing: false})
+    with {:ok, user} <- Haterblock.Accounts.update_user(user, %{syncing: false}) do
+      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "user_changed", %{
+        syncing: false
+      })
+    end
   end
 end
