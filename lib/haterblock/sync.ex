@@ -12,6 +12,14 @@ defmodule Haterblock.Sync do
         user,
         %{page: page} \\ %{page: nil}
       ) do
+    if !user.syncing do
+      turn_on_syncing(user)
+      perform_syncing(user)
+      turn_off_syncing(user)
+    end
+  end
+
+  defp perform_syncing(user) do
     %{next_page: next_page, comments: comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
 
@@ -41,9 +49,17 @@ defmodule Haterblock.Sync do
 
     if next_page && Enum.member?(new_comments, last_comment) &&
          Enum.member?(recent_comments, last_comment) do
-      sync_user_comments(user, %{page: next_page})
+      perform_syncing(user, %{page: next_page})
     else
       :ok
     end
+  end
+
+  defp turn_on_syncing(user) do
+    Haterblock.Accounts.update_user(user, %{syncing: true})
+  end
+
+  defp turn_off_syncing(user) do
+    Haterblock.Accounts.update_user(user, %{syncing: false})
   end
 end

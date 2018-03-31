@@ -9,6 +9,7 @@ defmodule Haterblock.Accounts.User do
     field(:google_refresh_token, :string)
     field(:email, :string)
     field(:name, :string)
+    field(:syncing, :boolean)
 
     timestamps()
   end
@@ -16,7 +17,7 @@ defmodule Haterblock.Accounts.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:google_id, :google_token, :google_refresh_token, :email, :name])
+    |> cast(attrs, [:google_id, :google_token, :google_refresh_token, :email, :name, :syncing])
     |> validate_required([:google_id, :google_token, :google_refresh_token, :email, :name])
   end
 end
