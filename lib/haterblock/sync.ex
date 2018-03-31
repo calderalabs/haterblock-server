@@ -8,10 +8,7 @@ defmodule Haterblock.Sync do
     end)
   end
 
-  def sync_user_comments(
-        user,
-        %{page: page} \\ %{page: nil}
-      ) do
+  def sync_user_comments(user) do
     if !user.syncing do
       turn_on_syncing(user)
       perform_syncing(user)
@@ -19,7 +16,7 @@ defmodule Haterblock.Sync do
     end
   end
 
-  defp perform_syncing(user) do
+  defp perform_syncing(user, %{page: page} \\ %{page: nil}) do
     %{next_page: next_page, comments: comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
 
