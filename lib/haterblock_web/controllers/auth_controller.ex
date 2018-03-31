@@ -22,6 +22,10 @@ defmodule HaterblockWeb.AuthController do
              email: auth.info.email,
              name: auth.info.name
            }) do
+      Task.Supervisor.async_nolink(Haterblock.TaskSupervisor, fn ->
+        Haterblock.Sync.sync_user_comments(user)
+      end)
+
       conn
       |> put_status(:ok)
       |> put_resp_header("location", user_path(conn, :show))
