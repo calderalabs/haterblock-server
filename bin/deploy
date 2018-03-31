@@ -7,3 +7,4 @@ terraform workspace select $1
 ansible-playbook -v -i "$app_root/ansible/inventory.py" "$app_root/ansible/playbook.yml"
 git remote set-url $1 dokku@$(terraform output public_ip):"$APP_NAME"
 GIT_SSH_COMMAND="ssh -i \"$SSH_PRIVATE_KEY_FILE\"" git push $1 master --force
+ssh -i "$SSH_PRIVATE_KEY_FILE" dokku@$(terraform output public_ip) run "$APP_NAME" mix ecto.migrate
