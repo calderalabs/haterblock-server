@@ -9,15 +9,15 @@ defmodule Haterblock.Sync do
   end
 
   def sync_user_comments(user) do
-    if !user.syncing do
-      user
-      |> turn_on_syncing
-      |> perform_syncing
-      |> turn_off_syncing
-    end
+    user
+    |> perform_syncing
+    |> finish_syncing
   end
 
-  defp perform_syncing(user, %{page: page} \\ %{page: nil}) do
+  defp perform_syncing(
+         user,
+         %{page: page, new_comment_count: new_comment_count} \\ %{page: nil, new_comment_count: 0}
+       ) do
     %{next_page: next_page, comments: comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
 
@@ -45,29 +45,24 @@ defmodule Haterblock.Sync do
     new_comments |> Enum.each(&Haterblock.Repo.insert/1)
     last_comment = comments |> List.last()
 
+    new_comment_count = new_comment_count + Enum.count(new_comments)
+
     if next_page && Enum.member?(new_comments, last_comment) &&
          Enum.member?(recent_comments, last_comment) do
-      perform_syncing(user, %{page: next_page})
+      perform_syncing(user, %{
+        page: next_page,
+        new_comment_count: new_comment_count
+      })
     else
-      user
+      {:ok, user} = Haterblock.Accounts.update_user(user, %{synced_at: DateTime.utc_now()})
+      %{user: user, new_comment_count: new_comment_count}
     end
   end
 
-  defp turn_on_syncing(user) do
-    with {:ok, user} <- Haterblock.Accounts.update_user(user, %{syncing: true}) do
-      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "user_changed", %{
-        syncing: true
-      })
-
-      user
-    end
-  end
-
-  defp turn_off_syncing(user) do
-    with {:ok, user} <- Haterblock.Accounts.update_user(user, %{syncing: false}) do
-      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "user_changed", %{
-        syncing: false
-      })
-    end
+  defp finish_syncing(%{user: user, new_comment_count: new_comment_count}) do
+    HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
+      synced_at: user.synced_at,
+      new_comment_count: new_comment_count
+    })
   end
 end

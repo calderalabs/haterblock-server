@@ -13,9 +13,14 @@ defmodule Haterblock.Application do
       # Start the endpoint when the application starts
       supervisor(HaterblockWeb.Endpoint, []),
       supervisor(Task.Supervisor, [[name: Haterblock.TaskSupervisor]])
-      # Start your own worker by calling: Haterblock.Worker.start_link(arg1, arg2, arg3)
-      # worker(Haterblock.SyncWorker, [])
     ]
+
+    children =
+      if System.get_env("ENABLE_SYNC_WORKER") == "true" do
+        children ++ [worker(Haterblock.SyncWorker, [])]
+      else
+        children
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

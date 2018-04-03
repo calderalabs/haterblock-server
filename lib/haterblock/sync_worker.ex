@@ -1,5 +1,6 @@
 defmodule Haterblock.SyncWorker do
-  @interval 5 * 60 * 1000
+  @default_interval Integer.to_string(5 * 60 * 1000)
+  @interval String.to_integer(System.get_env("SYNC_WORKER_INTERVAL") || @default_interval)
 
   use GenServer
 

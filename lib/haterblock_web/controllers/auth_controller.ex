@@ -9,7 +9,8 @@ defmodule HaterblockWeb.AuthController do
   @allowed_emails [
     "serenamatchalatte@gmail.com",
     "eugeniodepalo@gmail.com",
-    "nemesys0-1732@pages.plusgoogle.com"
+    "nemesys0-1732@pages.plusgoogle.com",
+    "shantilives@gmail.com"
   ]
 
   plug(:authorize_email)
