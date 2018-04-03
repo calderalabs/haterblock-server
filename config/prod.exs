@@ -17,7 +17,8 @@ config :haterblock, HaterblockWeb.Endpoint,
   load_from_system_env: true,
   url: [scheme: "https", host: "api.gethaterblock.com", port: 443],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  force_ssl: [rewrite_on: [:x_forwarded_proto], hsts: true]
+  force_ssl: [rewrite_on: [:x_forwarded_proto], hsts: true],
+  check_origin: ["https://gethaterblock.com"]
 
 # Do not print debug messages in production
 config :logger, level: :info
