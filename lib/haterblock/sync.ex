@@ -3,7 +3,7 @@ defmodule Haterblock.Sync do
 
   def sync_comments do
     Haterblock.Accounts.list_users()
-    |> Enum.each(fn user ->
+    |> Parallel.pmap(fn user ->
       sync_user_comments(user)
     end)
   end
