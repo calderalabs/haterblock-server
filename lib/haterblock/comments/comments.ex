@@ -36,7 +36,7 @@ defmodule Haterblock.Comments do
       ) do
     from(
       c in base_query(),
-      where: c.user_id == ^user.id
+      where: c.user_id == ^user.id and c.status != "rejected"
     )
     |> comments_for_sentiment(sentiment)
     |> Repo.paginate(page: page)
