@@ -20,7 +20,7 @@ defmodule Haterblock.Mixfile do
   def application do
     [
       mod: {Haterblock.Application, []},
-      extra_applications: [:logger, :runtime_tools, :ueberauth, :ueberauth_google]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -50,7 +50,8 @@ defmodule Haterblock.Mixfile do
       {:httpoison, "~> 1.0"},
       {:ibrowse, "~> 4.4.0"},
       {:scrivener_ecto, "~> 1.0"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:sentry, "~> 6.1.0"}
     ]
   end
 

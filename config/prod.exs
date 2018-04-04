@@ -67,3 +67,14 @@ config :logger, level: :info
 config :haterblock, Haterblock.Repo,
   adapter: Ecto.Adapters.Postgres,
   pool_size: String.to_integer(System.get_env("DATABASE_POOL_SIZE") || "20")
+
+config :sentry,
+  dsn:
+    "https://78782394965d4df0841740e279e48b41:40304f7587354165bc0c19d146bbac7f@sentry.io/1071576",
+  environment_name: :prod,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!(),
+  tags: %{
+    env: "production"
+  },
+  included_environments: [:prod]
