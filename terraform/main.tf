@@ -64,3 +64,36 @@ resource "dnsimple_record" "a" {
 output "public_ip" {
   value = "${aws_eip.web.public_ip}"
 }
+
+# Alarms
+
+data "aws_ssm_parameter" "slack_webhook" {
+  name = "/haterblock-server/slack/incoming-webhooks/url"
+}
+
+module "notify_slack" {
+  source = "terraform-aws-modules/notify-slack/aws"
+
+  sns_topic_name = "slack-topic"
+
+  slack_webhook_url = "${slack_webhook.value}"
+  slack_channel     = "aws-notification"
+  slack_username    = "reporter"
+}
+
+resource "aws_cloudwatch_metric_alarm" "web_cpu" {
+  alarm_name          = "Web CPU"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "80"
+  alarm_description   = "This metric monitors ec2 cpu utilization"
+  alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  dimensions {
+    InstanceId = "${aws_instance.web.id}"
+  }
+}
