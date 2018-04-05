@@ -4,14 +4,8 @@ variable "aws_secret_key" {}
 variable "aws_region" {}
 variable "dnsimple_account" {}
 variable "dnsimple_token" {}
-
-variable "app_name" {
-  default = "haterblock"
-}
-
-variable "domain" {
-  default = "gethaterblock.com"
-}
+variable "app_domain" {}
+variable "app_subdomain" {}
 
 variable "aws_instance_type" {
   default = "t2.micro"

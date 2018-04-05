@@ -3,8 +3,7 @@
     "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
     "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
     "aws_region": "{{env `AWS_REGION`}}",
-    "app_name": "{{env `APP_NAME`}}",
-    "ssh_public_key_file": "{{env `SSH_PUBLIC_KEY_FILE`}}",
+    "ssh_public_key_src": "{{env `SSH_PUBLIC_KEY_FILE`}}",
     "ssh_public_key_dest": "/tmp/{{uuid}}.pub"
   },
   "builders": [{
@@ -25,7 +24,7 @@
       "most_recent": true
     },
     "tags": {
-      "Name": "{{user `app_name`}}"
+      "Name": "web"
     }
   }],
   "provisioners": [{
@@ -38,14 +37,16 @@
     ]
   }, {
     "type": "file",
-    "source": "{{user `ssh_public_key_file`}}",
+    "source": "{{user `ssh_public_key_src`}}",
     "destination": "{{user `ssh_public_key_dest`}}"
   }, {
     "type": "ansible-local",
     "playbook_file": "{{template_dir}}/ansible/playbook.yml",
+    "role_paths": ["{{template_dir}}/ansible/roles/common"],
+    "inventory_groups": "packer",
     "extra_arguments": [
-      "--extra-vars \"ssh_public_key_file={{user `ssh_public_key_dest`}}\"",
-      "--extra-vars \"app_name={{user `app_name`}}\""
+      "--limit packer",
+      "--extra-vars \"ssh_public_key_src={{user `ssh_public_key_dest`}}\""
     ]
   }]
 }

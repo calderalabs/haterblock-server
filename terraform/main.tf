@@ -39,7 +39,7 @@ data "aws_ami" "web" {
 
   filter {
     name   = "tag:Name"
-    values = ["${var.app_name}"]
+    values = ["web"]
   }
 }
 
@@ -59,8 +59,8 @@ resource "aws_eip" "web" {
 }
 
 resource "dnsimple_record" "a" {
-  domain = "${var.domain}"
-  name   = "api"
+  domain = "${var.app_domain}"
+  name   = "${var.app_subdomain}"
   value  = "${aws_eip.web.public_ip}"
   type   = "A"
 }

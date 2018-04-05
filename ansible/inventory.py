@@ -17,6 +17,9 @@ def _inventory(state):
     'web': {
       'hosts': [host]
     },
+    'packer': {
+      'hosts': ['127.0.0.1']
+    },
     '_meta': {
       'hostvars': {
         host: {

@@ -2,7 +2,7 @@
   "name": "haterblock-server",
   "scripts": {
     "dokku": {
-      "postdeploy": "date"
+      "postdeploy": "mix ecto.migrate"
     }
   }
 }
