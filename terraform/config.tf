@@ -1,6 +1,7 @@
 terraform {
   backend "s3" {
-    bucket = "calderalabs-terraform-test"
+    bucket = "eugeniodepalo-terraform"
     region = "eu-west-1"
+    key = "haterblock"
   }
 }

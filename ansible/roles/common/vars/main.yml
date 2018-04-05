@@ -1,0 +1,5 @@
+dokku_version: 0.11.3
+dokku_install_script_file: "{{ansible_env.HOME}}/install-dokku-{{dokku_version}}"
+ssh_public_key_src: "{{lookup('env', 'SSH_PUBLIC_KEY_FILE')}}"
+ssh_public_key_dest: "{{ansible_env.HOME}}/key.pub"
+letsencrypt_email: "hi@calderalabs.io"

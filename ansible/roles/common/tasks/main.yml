@@ -1,0 +1,98 @@
+- get_url:
+    url: https://raw.githubusercontent.com/dokku/dokku/v{{dokku_version}}/bootstrap.sh
+    dest: "{{dokku_install_script_file}}"
+  name: fetch dokku install script
+- file:
+    path: "{{dokku_install_script_file}}"
+    mode: u+x
+  name: add exec permissions to dokku install script
+- command: dokku version
+  name: fetch dokku version
+  register: dokku_version_result
+  changed_when: false
+  failed_when: dokku_version_result.rc != 0 and dokku_version_result.rc != 2
+- command: "{{dokku_install_script_file}}"
+  name: install dokku
+  register: dokku_install_result
+  changed_when: dokku_install_result is succeeded
+  become: true
+  when: dokku_version_result.rc == 2 or dokku_version not in dokku_version_result.stdout
+  environment:
+    DOKKU_TAG: v{{dokku_version}}
+    DOKKU_WEB_CONFIG: "false"
+    DOKKU_SKIP_KEY_FILE: "true"
+    DOKKU_VHOST_ENABLE: "true"
+- file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  name: remove nginx default site
+  become: true
+- copy:
+    src: "{{ssh_public_key_src}}"
+    dest: "{{ssh_public_key_dest}}"
+  name: copy ssh public key file
+- command: ssh-keygen -l -f {{ssh_public_key_dest}}
+  name: list matching ssh keys
+  register: ssh_keygen_result
+  changed_when: false
+- command: dokku ssh-keys:list
+  name: list dokku ssh keys
+  register: dokku_keys_result
+  changed_when: false
+  failed_when: dokku_keys_result.rc != 0 and "No public keys found" not in dokku_keys_result.stderr
+- command: dokku ssh-keys:remove admin
+  name: remove dokku admin ssh key
+  register: dokku_remove_key_result
+  changed_when: dokku_remove_key_result is succeeded
+  become: true
+  when:
+    "'NAME=\"admin\"' in dokku_keys_result.stdout and
+    '%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"
+- command: bash -c 'dokku ssh-keys:add admin {{ssh_public_key_dest | quote}} < /dev/null'
+  name: add dokku admin ssh key
+  register: dokku_add_key_result
+  changed_when: dokku_add_key_result is succeeded
+  become: true
+  when: "'%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"
+- command: dokku apps:list
+  name: list dokku apps
+  register: dokku_apps_list_result
+  changed_when: false
+- command: dokku apps:create default
+  name: create default dokku app
+  register: dokku_apps_create_result
+  become: true
+  when: "'default' not in dokku_apps_list_result.stdout"
+  changed_when: dokku_apps_create_result is succeeded
+- command: dokku plugin:list
+  name: list dokku plugins
+  register: dokku_plugin_result
+  changed_when: false
+- command: dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+  name: install letsencrypt dokku plugin
+  register: dokku_plugin_install_letsencrypt_result
+  become: true
+  when: "'letsencrypt' not in dokku_plugin_result.stdout"
+  changed_when: dokku_plugin_install_letsencrypt_result is succeeded
+- command: dokku config:get --global DOKKU_LETSENCRYPT_EMAIL
+  name: fetch DOKKU_LETSENCRYPT_EMAIL env var
+  register: dokku_config_get_result
+  failed_when: dokku_config_get_result.rc != 0 and (dokku_config_get_result.rc != 1 or dokku_config_get_result.stderr != "")
+  changed_when: false
+- command: dokku config:set --global DOKKU_LETSENCRYPT_EMAIL={{letsencrypt_email}}
+  name: set DOKKU_LETSENCRYPT_EMAIL env var
+  register: dokku_config_set_result
+  when: letsencrypt_email != dokku_config_get_result.stdout
+  changed_when: dokku_config_set_result is succeeded
+- command: crontab -l -u dokku
+  name: list crontab entries
+  register: crontab_list_result
+  become: true
+  changed_when: false
+  failed_when: crontab_list_result.rc != 0 and (crontab_list_result.rc != 1 or crontab_list_result.stderr != "no crontab for dokku")
+- command: dokku letsencrypt:cron-job --add
+  name: add dokku letsencrypt cron job
+  become: true
+  register: dokku_letsencrypt_add_cron_job_result
+  when: "'@daily /var/lib/dokku/plugins/available/letsencrypt/cron-job' not in crontab_list_result.stdout_lines"
+  changed_when: dokku_letsencrypt_add_cron_job_result is succeeded
