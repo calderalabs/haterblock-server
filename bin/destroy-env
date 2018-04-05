@@ -2,14 +2,7 @@
 app_root="$(cd "$(dirname $0)/.." && pwd)"
 
 cd "$app_root/terraform"
-terraform workspace select $1
-
-terraform destroy\
-  -var="app_name=$APP_NAME"\
-  -var="aws_access_key_id=$AWS_ACCESS_KEY_ID"\
-  -var="aws_secret_key=$AWS_SECRET_KEY"\
-  -var="aws_region=$AWS_REGION"\
-  -var="ssh_public_key_file=$SSH_PUBLIC_KEY_FILE"
+"$app_root/bin/terraform/destroy" $1
 
 terraform workspace select default
 terraform workspace delete $1

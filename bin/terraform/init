@@ -2,7 +2,7 @@
 app_root="$(cd "$(dirname $0)/../.." && pwd)"
 
 cd "$app_root/terraform"
-
+terraform workspace new $1
 terraform init\
   -backend-config="key=$APP_NAME"\
   -backend-config="access_key=$AWS_ACCESS_KEY_ID"\
