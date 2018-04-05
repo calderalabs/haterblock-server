@@ -9,6 +9,10 @@ provider "dnsimple" {
   account = "${var.dnsimple_account}"
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+
 resource "aws_security_group" "web" {
   ingress {
     from_port   = 0
@@ -63,4 +67,63 @@ resource "dnsimple_record" "a" {
 
 output "public_ip" {
   value = "${aws_eip.web.public_ip}"
+}
+
+# Alarms
+
+data "aws_ssm_parameter" "slack_webhook" {
+  name = "/haterblock-server/slack/incoming-webhooks/url"
+}
+
+module "notify_slack" {
+  source = "terraform-aws-modules/notify-slack/aws"
+
+  sns_topic_name = "slack-topic"
+
+  slack_webhook_url = "${data.aws_ssm_parameter.slack_webhook.value}"
+  slack_channel     = "aws-notification"
+  slack_username    = "reporter"
+}
+
+resource "aws_cloudwatch_metric_alarm" "web_cpu" {
+  alarm_name          = "Web CPU"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "80"
+  alarm_description   = "This metric monitors ec2 cpu utilization"
+  alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  dimensions {
+    InstanceId = "${aws_instance.web.id}"
+  }
+}
+
+# Database
+
+data "aws_ssm_parameter" "database_password" {
+  name = "/haterblock-server/database/password"
+}
+
+module "postgresql_rds" {
+  source            = "github.com/azavea/terraform-aws-postgresql-rds"
+  vpc_id            = "${data.aws_vpc.default.id}"
+  engine_version    = "10.3"
+  instance_type     = "${var.aws_database_type}"
+  database_username = "postgres"
+  database_password = "${data.aws_ssm_parameter.database_password.value}"
+  parameter_group   = "default.postgres9.6"
+
+  alarm_actions             = ["${module.notify_slack.this_slack_topic_arn}"]
+  insufficient_data_actions = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  project     = "${var.app_name}"
+  environment = "${terraform.workspace}"
+}
+
+output "database_endpoint" {
+  value = "${module.postgresql_rds.endpoint}"
 }

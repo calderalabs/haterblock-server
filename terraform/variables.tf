@@ -16,3 +16,7 @@ variable "domain" {
 variable "aws_instance_type" {
   default = "t2.micro"
 }
+
+variable "aws_database_type" {
+  default = "db.t2.micro"
+}
