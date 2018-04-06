@@ -1,7 +1,7 @@
 {
   "variables": {
     "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
-    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
     "aws_region": "{{env `AWS_REGION`}}",
     "ssh_public_key_src": "{{env `SSH_PUBLIC_KEY_FILE`}}",
     "ssh_public_key_dest": "/tmp/{{uuid}}.pub"

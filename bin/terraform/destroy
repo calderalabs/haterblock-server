@@ -7,6 +7,6 @@ terraform destroy\
   -var="domain=$DOMAIN"\
   -var="subdomain=$SUBDOMAIN"\
   -var="aws_access_key_id=$AWS_ACCESS_KEY_ID"\
-  -var="aws_secret_key=$AWS_SECRET_KEY"\
+  -var="aws_secret_key=$AWS_SECRET_ACCESS_KEY"\
   -var="aws_region=$AWS_REGION"\
   -var="ssh_public_key_file=$SSH_PUBLIC_KEY_FILE"
