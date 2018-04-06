@@ -1,0 +1,9 @@
+#!/bin/bash -e
+app_root="$(cd "$(dirname $0)/.." && pwd)"
+env_path="$app_root/.deploy-env"
+
+for path in "$env_path" "$env_path.$1"; do
+  if [ -f "$path" ]; then
+    set -a; source "$path"; set +a
+  fi
+done

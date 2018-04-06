@@ -15,5 +15,8 @@ erl_crash.dump
 # variables.
 /config/*.secret.exs
 .env
+.env.*
+.deploy-env
+.deploy-env.*
 /ansible/playbook.retry
 .terraform

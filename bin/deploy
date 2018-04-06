@@ -1,11 +1,13 @@
 #!/bin/bash -e
 app_root="$(cd "$(dirname $0)/.." && pwd)"
-
+source "$app_root/bin/env"
 cd "$app_root/terraform"
 "$app_root/bin/terraform/apply" $1
 
-DATABASE_URL=$(terraform output database_endpoint)\
-  ansible-playbook -v -i "$app_root/ansible/inventory.py" --limit "all:!packer" "$app_root/ansible/playbook.yml"
+ENV_FILE_PATH="$app_root/.env.$1"\
+  DATABASE_URL=$(terraform output database_endpoint)\
+  ansible-playbook -i "$app_root/ansible/inventory.py" --limit "all:!packer"\
+  "$app_root/ansible/playbook.yml"
 
 git remote set-url $1 dokku@$(terraform output public_ip):default
 GIT_SSH_COMMAND="ssh -i \"$SSH_PRIVATE_KEY_FILE\"" git push $1 master --force

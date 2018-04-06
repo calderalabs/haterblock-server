@@ -1,4 +1,4 @@
 #!/bin/bash -e
 app_root="$(cd "$(dirname $0)/.." && pwd)"
-
+source "$app_root/bin/env"
 packer build "$app_root/packer.json"
