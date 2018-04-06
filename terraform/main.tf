@@ -70,60 +70,89 @@ output "public_ip" {
 }
 
 # Alarms
-#
-#data "aws_ssm_parameter" "slack_webhook" {
-#  name = "/haterblock-server/slack/incoming-webhooks/url"
-#}
-#
-#module "notify_slack" {
-#  source = "terraform-aws-modules/notify-slack/aws"
-#
-#  sns_topic_name = "slack-topic"
-#
-#  slack_webhook_url = "${data.aws_ssm_parameter.slack_webhook.value}"
-#  slack_channel     = "aws-notification"
-#  slack_username    = "reporter"
-#}
 
-#resource "aws_cloudwatch_metric_alarm" "web_cpu" {
-#  alarm_name          = "Web CPU"
-#  comparison_operator = "GreaterThanOrEqualToThreshold"
-#  evaluation_periods  = "2"
-#  metric_name         = "CPUUtilization"
-#  namespace           = "AWS/EC2"
-#  period              = "120"
-#  statistic           = "Average"
-#  threshold           = "80"
-#  alarm_description   = "This metric monitors ec2 cpu utilization"
-#  alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
-#
-#  dimensions {
-#    InstanceId = "${aws_instance.web.id}"
-#  }
-#}
+data "aws_ssm_parameter" "slack_webhook" {
+  name = "/haterblock-server/slack/incoming-webhooks/url"
+}
+
+module "notify_slack" {
+  source = "terraform-aws-modules/notify-slack/aws"
+
+  sns_topic_name = "slack-topic"
+
+  slack_webhook_url = "${data.aws_ssm_parameter.slack_webhook.value}"
+  slack_channel     = "aws-notification"
+  slack_username    = "reporter"
+}
+
+resource "aws_cloudwatch_metric_alarm" "web_cpu" {
+  alarm_name          = "Web CPU"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "80"
+  alarm_description   = "This metric monitors ec2 cpu utilization"
+  alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  dimensions {
+    InstanceId = "${aws_instance.web.id}"
+  }
+}
 
 # Database
 
-#data "aws_ssm_parameter" "database_password" {
-#  name = "/haterblock-server/database/password"
-#}
+data "aws_ssm_parameter" "database_password" {
+  name = "/haterblock-server/database/password"
+}
 
-#module "postgresql_rds" {
-#  source            = "github.com/azavea/terraform-aws-postgresql-rds"
-#  vpc_id            = "${data.aws_vpc.default.id}"
-#  engine_version    = "10.3"
-#  instance_type     = "${var.aws_database_type}"
-#  database_username = "postgres"
-#  database_password = "${data.aws_ssm_parameter.database_password.value}"
-#  parameter_group   = "default.postgres9.6"
-#
-#  alarm_actions             = ["${module.notify_slack.this_slack_topic_arn}"]
-#  insufficient_data_actions = ["${module.notify_slack.this_slack_topic_arn}"]
-#
-#  project     = "default"
-#  environment = "${terraform.workspace}"
-#}
+data "aws_subnet_ids" "default" {
+  vpc_id = "${data.aws_vpc.default.id}"
+}
+
+resource "aws_db_subnet_group" "default" {
+  name       = "main"
+  subnet_ids = ["${data.aws_subnet_ids.default.ids}"]
+}
+
+resource "aws_db_parameter_group" "default" {
+  name   = "rds-pg"
+  family = "postgres10"
+}
+
+resource "aws_security_group" "postgresql" {
+  vpc_id = "${data.aws_vpc.default.id}"
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+module "postgresql_rds" {
+  source                = "github.com/calderalabs/terraform-aws-postgresql-rds?ref=ae859baaf804220f63c22f1eedaa911bc4b214ab"
+  vpc_security_group_id = "${aws_security_group.postgresql.id}"
+  engine_version        = "10.3"
+  instance_type         = "${var.aws_database_type}"
+  database_name         = "${terraform.workspace}"
+  database_identifier   = "jl23kj32sdf"
+  database_username     = "${var.database_username}"
+  database_password     = "${data.aws_ssm_parameter.database_password.value}"
+  subnet_group          = "${aws_db_subnet_group.default.name}"
+  parameter_group       = "${aws_db_parameter_group.default.name}"
+
+  ok_actions                = ["${module.notify_slack.this_slack_topic_arn}"]
+  alarm_actions             = ["${module.notify_slack.this_slack_topic_arn}"]
+  insufficient_data_actions = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  project     = "haterblock"
+  environment = "${terraform.workspace}"
+}
 
 output "database_endpoint" {
-  value = "hello" #"${module.postgresql_rds.endpoint}"
+  value = "postgresql://${var.database_username}:${data.aws_ssm_parameter.database_password.value}@${module.postgresql_rds.endpoint}/${terraform.workspace}"
 }

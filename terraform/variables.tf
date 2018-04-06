@@ -14,3 +14,7 @@ variable "aws_instance_type" {
 variable "aws_database_type" {
   default = "db.t2.micro"
 }
+
+variable "database_username" {
+  default = "postgres"
+}

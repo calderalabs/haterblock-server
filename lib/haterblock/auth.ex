@@ -1,19 +1,17 @@
 defmodule Haterblock.Auth do
   import Joken
 
-  @secret Application.get_env(:haterblock, HaterblockWeb.Endpoint)[:secret_key_base]
-
   def verify_token(token) do
     token
     |> token
-    |> with_signer(hs256(@secret))
+    |> with_signer(hs256(System.get_env("SECRET_KEY_BASE")))
     |> verify
   end
 
   def generate_token(claims) do
     claims
     |> token
-    |> with_signer(hs256(@secret))
+    |> with_signer(hs256(System.get_env("SECRET_KEY_BASE")))
     |> sign
   end
 end
