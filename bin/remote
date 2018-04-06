@@ -1,5 +1,5 @@
 #!/bin/bash -e
 app_root="$(cd "$(dirname $0)/.." && pwd)"
-
 cd "$app_root/terraform"
+source "$app_root/bin/env"
 git remote add $1 dokku@$(terraform output public_ip):default

@@ -1,0 +1,4 @@
+- command: dokku config:set {{(scope == "global") | ternary("--global", "default")}} {{value}}
+  name: set env vars
+  register: dokku_config_set_result
+  changed_when: dokku_config_set_result is succeeded

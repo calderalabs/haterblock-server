@@ -1,12 +1,11 @@
 #!/bin/bash -e
 app_root="$(cd "$(dirname $0)/../.." && pwd)"
-
 cd "$app_root/terraform"
-terraform workspace new $1
+terraform workspace select $1
 
 terraform apply\
-  -var="app_domain=$APP_DOMAIN"\
-  -var="app_subdomain=$APP_SUBDOMAIN"\
+  -var="domain=$DOMAIN"\
+  -var="subdomain=$SUBDOMAIN"\
   -var="aws_access_key_id=$AWS_ACCESS_KEY_ID"\
   -var="aws_secret_key=$AWS_SECRET_KEY"\
   -var="aws_region=$AWS_REGION"\

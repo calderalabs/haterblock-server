@@ -3,21 +3,14 @@
     - common
 - hosts: all:!packer
   vars:
-    app_subdomain: "{{lookup('env', 'APP_SUBDOMAIN')}}"
-    app_domain: "{{lookup('env', 'APP_DOMAIN')}}"
-    full_domain: "{{(app_subdomain == '') | ternary(app_domain, '%s.%s' % (app_subdomain, app_domain))}}"
-    database_url: "{{lookup('env', 'DATABASE_URL')}}"
-    buildpack_url: "https://github.com/HashNuke/heroku-buildpack-elixir.git"
+    subdomain: "{{lookup('env', 'SUBDOMAIN')}}"
+    domain: "{{lookup('env', 'DOMAIN')}}"
+    full_domain: "{{(subdomain == '') | ternary(domain, '%s.%s' % (subdomain, domain))}}"
+    env_file_path: "{{lookup('env', 'ENV_FILE_PATH')}}"
+    env_file: "{{lookup('file', env_file_path).replace('\n', ' ')}}"
+    env_file_hash: "{{env_file | hash('sha1')}}"
+    last_env_file_hash: null
   tasks:
-    - command: dokku config:get default BUILDPACK_URL
-      name: fetch BUILDPACK_URL env var
-      register: dokku_config_get_result
-      failed_when: dokku_config_get_result.rc != 0 and (dokku_config_get_result.rc != 1 or dokku_config_get_result.stderr != "")
-      changed_when: false
-    - command: dokku config:set --no-restart default BUILDPACK_URL={{buildpack_url}}
-      name: set BUILDPACK_URL env var
-      register: dokku_config_set_result
-      when: buildpack_url != dokku_config_get_result.stdout
     - command: dokku domains:report default --domains-app-vhosts
       name: list dokku domains
       register: dokku_domains_report_result
@@ -28,13 +21,14 @@
       register: dokku_domains_add_result
       when: full_domain not in dokku_domains_report_result.stdout.split(' ')
       changed_when: dokku_domains_add_result is succeeded
-    - command: dokku config:get default DATABASE_URL
-      name: fetch dokku DATABASE_URL env var
-      register: dokku_config_get_result
-      changed_when: false
-      failed_when: dokku_config_get_result.rc != 0 and (dokku_config_get_result.rc != 1 or dokku_config_get_result.stderr != "")
-    - command: dokku config:set DATABASE_URL={{database_url}}
-      name: set dokku DATABASE_URL env var
-      register: dokku_config_set_result
-      when: database_url != dokku_config_get_result.stdout
-      changed_when: dokku_config_set_result is succeeded
+    - include_role:
+        name: dokku/config
+      vars:
+        value: DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
+    - include_role:
+        name: dokku/config
+      vars:
+        value: "{{env_file}}"
+      when: env_file_hash != last_env_file_hash
+    - set_fact:
+        last_env_file_hash: "{{env_file_hash}}"

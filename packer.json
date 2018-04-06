@@ -42,7 +42,10 @@
   }, {
     "type": "ansible-local",
     "playbook_file": "{{template_dir}}/ansible/playbook.yml",
-    "role_paths": ["{{template_dir}}/ansible/roles/common"],
+    "role_paths": [
+      "{{template_dir}}/ansible/roles/common",
+      "{{template_dir}}/ansible/roles/dokku"
+    ],
     "inventory_groups": "packer",
     "extra_arguments": [
       "--limit packer",

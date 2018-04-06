@@ -1,9 +1,8 @@
 #!/bin/bash -e
 app_root="$(cd "$(dirname $0)/.." && pwd)"
-
+source "$app_root/bin/env"
 cd "$app_root/terraform"
 "$app_root/bin/terraform/destroy" $1
-
 terraform workspace select default
 terraform workspace delete $1
 git remote remove $1

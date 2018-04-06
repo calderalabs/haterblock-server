@@ -1,0 +1,27 @@
+- copy:
+    src: "{{ssh_public_key_src}}"
+    dest: "{{ssh_public_key_dest}}"
+  name: copy ssh public key file
+- command: ssh-keygen -l -f {{ssh_public_key_dest}}
+  name: list matching ssh keys
+  register: ssh_keygen_result
+  changed_when: false
+- command: dokku ssh-keys:list
+  name: list dokku ssh keys
+  register: dokku_keys_result
+  changed_when: false
+  failed_when: dokku_keys_result.rc != 0 and "No public keys found" not in dokku_keys_result.stderr
+- command: dokku ssh-keys:remove admin
+  name: remove dokku admin ssh key
+  register: dokku_remove_key_result
+  changed_when: dokku_remove_key_result is succeeded
+  become: true
+  when:
+    "'NAME=\"admin\"' in dokku_keys_result.stdout and
+    '%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"
+- command: bash -c 'dokku ssh-keys:add admin {{ssh_public_key_dest | quote}} < /dev/null'
+  name: add dokku admin ssh key
+  register: dokku_add_key_result
+  changed_when: dokku_add_key_result is succeeded
+  become: true
+  when: "'%s NAME=\"admin\"' % ssh_keygen_result.stdout.split(' ')[1] not in dokku_keys_result.stdout"

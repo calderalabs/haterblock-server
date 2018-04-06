@@ -1,0 +1,29 @@
+- get_url:
+    url: https://raw.githubusercontent.com/dokku/dokku/v{{dokku_version}}/bootstrap.sh
+    dest: "{{dokku_install_script_file}}"
+  name: fetch dokku install script
+- file:
+    path: "{{dokku_install_script_file}}"
+    mode: u+x
+  name: add exec permissions to dokku install script
+- command: dokku version
+  name: fetch dokku version
+  register: dokku_version_result
+  changed_when: false
+  failed_when: dokku_version_result.rc != 0 and dokku_version_result.rc != 2
+- command: "{{dokku_install_script_file}}"
+  name: install dokku
+  register: dokku_install_result
+  changed_when: dokku_install_result is succeeded
+  become: true
+  when: dokku_version_result.rc == 2 or dokku_version not in dokku_version_result.stdout
+  environment:
+    DOKKU_TAG: v{{dokku_version}}
+    DOKKU_WEB_CONFIG: "false"
+    DOKKU_SKIP_KEY_FILE: "true"
+    DOKKU_VHOST_ENABLE: "true"
+- file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  name: remove nginx default site
+  become: true

@@ -1,0 +1,10 @@
+- command: dokku apps:list
+  name: list dokku apps
+  register: dokku_apps_list_result
+  changed_when: false
+- command: dokku apps:create default
+  name: create default dokku app
+  register: dokku_apps_create_result
+  become: true
+  when: "'default' not in dokku_apps_list_result.stdout"
+  changed_when: dokku_apps_create_result is succeeded
