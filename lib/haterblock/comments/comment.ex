@@ -51,8 +51,4 @@ defmodule Haterblock.Comments.Comment do
 
     sentiment
   end
-
-  def range_for_sentiment(sentiment) do
-    @ranges |> Map.get(sentiment |> String.to_atom())
-  end
 end
