@@ -86,5 +86,5 @@ config :haterblock, Haterblock.Mailer,
   username: {:system, "SMTP_USERNAME"},
   password: {:system, "SMTP_PASSWORD"},
   tls: :always,
-  ssl: true,
+  ssl: false,
   retries: 1
