@@ -173,6 +173,14 @@ output "database_endpoint" {
 
 # Email
 
+resource "aws_iam_user" "mailer" {
+  name = "mailer"
+}
+
+resource "aws_ses_domain_identity" "default" {
+  domain = "${var.domain}"
+}
+
 resource "aws_iam_access_key" "mailer" {
   user = "${aws_iam_user.mailer.name}"
 }
@@ -199,14 +207,6 @@ resource "aws_iam_user_policy" "mailer" {
 EOF
 }
 
-resource "aws_ses_domain_identity" "default" {
-  domain = "${var.domain}"
-}
-
-resource "aws_iam_user" "mailer" {
-  name = "mailer"
-}
-
 resource "dnsimple_record" "ses" {
   domain = "${var.domain}"
   name   = "_amazonses"
@@ -220,7 +220,7 @@ output "smtp_password" {
 }
 
 output "smtp_username" {
-  value = "${aws_iam_user.mailer.name}"
+  value = "${aws_iam_access_key.mailer.id}"
 }
 
 output "smtp_server" {

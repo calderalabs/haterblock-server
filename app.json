@@ -2,7 +2,7 @@
   "name": "haterblock-server",
   "scripts": {
     "dokku": {
-      "postdeploy": "mix ecto.migrate"
+      "postdeploy": "POOL_SIZE=1 mix ecto.migrate"
     }
   }
 }
