@@ -85,7 +85,6 @@ config :haterblock, Haterblock.Mailer,
   port: 25,
   username: {:system, "SMTP_USERNAME"},
   password: {:system, "SMTP_PASSWORD"},
-  tls: :if_available,
-  allowed_tls_versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"],
+  tls: :always,
   ssl: true,
   retries: 1
