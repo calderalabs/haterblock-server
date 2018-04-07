@@ -66,7 +66,7 @@ config :logger, level: :info
 
 config :haterblock, Haterblock.Repo,
   adapter: Ecto.Adapters.Postgres,
-  pool_size: String.to_integer(System.get_env("DATABASE_POOL_SIZE") || "20")
+  pool_size: String.to_integer(System.get_env("DATABASE_POOL_SIZE") || "10")
 
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),

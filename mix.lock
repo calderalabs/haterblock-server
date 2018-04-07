@@ -1,5 +1,6 @@
 %{
   "bamboo": {:hex, :bamboo, "0.8.0", "573889a3efcb906bb9d25a1c4caa4ca22f479235e1b8cc3260d8b88dabeb4b14", [:mix], [{:hackney, "~> 1.6", [hex: :hackney, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}, {:poison, ">= 1.5.0", [hex: :poison, optional: false]}]},
+  "bamboo_smtp": {:hex, :bamboo_smtp, "1.4.0", "a01d91406f3a46b3452c84d345d50f75d6facca5e06337358287a97da0426240", [:mix], [{:bamboo, "~> 0.8.0", [hex: :bamboo, optional: false]}, {:gen_smtp, "~> 0.12.0", [hex: :gen_smtp, optional: false]}]},
   "base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], []},
   "certifi": {:hex, :certifi, "2.0.0", "a0c0e475107135f76b8c1d5bc7efb33cd3815cb3cf3dea7aefdd174dabead064", [:rebar3], []},
   "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], []},
@@ -11,6 +12,7 @@
   "decimal": {:hex, :decimal, "1.4.1", "ad9e501edf7322f122f7fc151cce7c2a0c9ada96f2b0155b8a09a795c2029770", [:mix], []},
   "ecto": {:hex, :ecto, "2.2.8", "a4463c0928b970f2cee722cd29aaac154e866a15882c5737e0038bbfcf03ec2c", [:mix], [{:db_connection, "~> 1.1", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.2", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.8.0", [hex: :mariaex, optional: true]}, {:poison, "~> 2.2 or ~> 3.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.13.0", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0", [hex: :sbroker, optional: true]}]},
   "file_system": {:hex, :file_system, "0.2.4", "f0bdda195c0e46e987333e986452ec523aed21d784189144f647c43eaf307064", [:mix], []},
+  "gen_smtp": {:hex, :gen_smtp, "0.12.0", "97d44903f5ca18ca85cb39aee7d9c77e98d79804bbdef56078adcf905cb2ef00", [:rebar3], []},
   "gettext": {:hex, :gettext, "0.15.0", "40a2b8ce33a80ced7727e36768499fc9286881c43ebafccae6bab731e2b2b8ce", [:mix], []},
   "google_api_language": {:hex, :google_api_language, "0.0.1", "22a4613485da88fed41d90591175ad498611693c6b8b2d5885c957b99219d564", [:mix], [{:poison, ">= 1.0.0", [hex: :poison, optional: false]}, {:tesla, "~> 0.5", [hex: :tesla, optional: false]}]},
   "google_api_you_tube": {:hex, :google_api_you_tube, "0.0.1", "57a771bb4bc732052784ed5ef22b40bc524d545b52738418bea9267174559ca6", [:mix], [{:poison, ">= 1.0.0", [hex: :poison, optional: false]}, {:tesla, "~> 0.8", [hex: :tesla, optional: false]}]},
