@@ -5,9 +5,8 @@ defmodule Haterblock.Comments.Comment do
 
   @ranges %{
     positive: {5, 10},
-    neutral: {-1, 4},
-    negative: {-6, -2},
-    hateful: {-10, -7}
+    neutral: {-2, 4},
+    negative: {-10, -3}
   }
 
   schema "comments" do
