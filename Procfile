@@ -1,2 +1,2 @@
 web: mix phx.server
-console: iex -S mix
+console: PORT=80 iex -S mix
