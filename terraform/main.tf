@@ -177,15 +177,9 @@ resource "aws_iam_access_key" "mailer" {
   user = "${aws_iam_user.mailer.name}"
 }
 
-resource "aws_ses_domain_identity" "default" {
-  domain = "${var.domain}"
-}
+resource "aws_iam_user_policy" "mailer" {
+  user = "${aws_iam_user.mailer.name}"
 
-resource "aws_iam_user" "mailer" {
-  name = "mailer"
-}
-
-resource "aws_iam_policy" "policy" {
   policy = <<EOF
 {
   "Id":"MailerAuthorizationPolicy",
@@ -195,11 +189,6 @@ resource "aws_iam_policy" "policy" {
       "Sid":"AuthorizeIAMUser",
       "Effect":"Allow",
       "Resource":"${aws_ses_domain_identity.default.arn}",
-      "Principal":{
-        "AWS":[
-          "${aws_iam_user.mailer.arn}
-        ]
-      },
       "Action":[
         "SES:SendEmail",
         "SES:SendRawEmail"
@@ -210,6 +199,14 @@ resource "aws_iam_policy" "policy" {
 EOF
 }
 
+resource "aws_ses_domain_identity" "default" {
+  domain = "${var.domain}"
+}
+
+resource "aws_iam_user" "mailer" {
+  name = "mailer"
+}
+
 resource "dnsimple_record" "ses" {
   domain = "${var.domain}"
   name   = "_amazonses"
@@ -218,8 +215,8 @@ resource "dnsimple_record" "ses" {
   ttl    = 600
 }
 
-output "smpt_password" {
-  value = "${aws_iam_access_key.mailer.ses_smpt_password}"
+output "smtp_password" {
+  value = "${aws_iam_access_key.mailer.ses_smtp_password}"
 }
 
 output "smtp_username" {
@@ -227,5 +224,5 @@ output "smtp_username" {
 }
 
 output "smtp_server" {
-  value = "email-smtp.${var.region}.amazonaws.com"
+  value = "email-smtp.${var.aws_region}.amazonaws.com"
 }
