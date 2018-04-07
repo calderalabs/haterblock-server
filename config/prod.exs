@@ -77,3 +77,15 @@ config :sentry,
     env: "production"
   },
   included_environments: [:prod]
+
+config :haterblock, Haterblock.Mailer,
+  adapter: Bamboo.SMTPAdapter,
+  server: {:system, "SMTP_SERVER"},
+  hostname: "gethaterblock.com",
+  port: 1025,
+  username: {:system, "SMTP_USERNAME"},
+  password: {:system, "SMTP_PASSWORD"},
+  tls: :if_available,
+  allowed_tls_versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"],
+  ssl: true,
+  retries: 1

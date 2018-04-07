@@ -6,6 +6,9 @@ cd "$app_root/terraform"
 
 ENV_FILE_PATH="$app_root/.env.$1"\
   DATABASE_URL=$(terraform output database_endpoint)\
+  SMTP_SERVER=$(terraform output smtp_server)\
+  SMTP_USERNAME=$(terraform output smtp_username)\
+  SMTP_PASSWORD=$(terraform output smtp_password)\
   ansible-playbook -i "$app_root/ansible/inventory.py" --limit "all:!packer"\
   "$app_root/ansible/playbook.yml"
 

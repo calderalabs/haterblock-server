@@ -56,3 +56,5 @@ config :sentry,
     env: "development"
   },
   included_environments: [:dev]
+
+config :haterblock, Haterblock.Mailer, adapter: Bamboo.LocalAdapter

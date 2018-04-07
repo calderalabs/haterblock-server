@@ -51,7 +51,10 @@ defmodule Haterblock.Mixfile do
       {:ibrowse, "~> 4.4.0"},
       {:scrivener_ecto, "~> 1.0"},
       {:timex, "~> 3.1"},
-      {:sentry, "~> 6.1.0"}
+      {:sentry, "~> 6.1.0"},
+      {:bamboo, "~> 0.8"},
+      {:inflex, "~> 1.10.0"},
+      {:bamboo_smtp, "~> 1.4.0"}
     ]
   end
 

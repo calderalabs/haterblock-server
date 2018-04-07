@@ -24,7 +24,11 @@
     - include_role:
         name: dokku/config
       vars:
-        value: DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
+        value: |
+          DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
+          SMTP_SERVER={{lookup('env', 'SMTP_SERVER')}}
+          SMTP_USERNAME={{lookup('env', 'SMTP_USERNAME')}}
+          SMTP_PASSWORD={{lookup('env', 'SMTP_PASSWORD')}}
     - include_role:
         name: dokku/config
       vars:

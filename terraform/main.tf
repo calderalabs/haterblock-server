@@ -170,3 +170,62 @@ module "postgresql_rds" {
 output "database_endpoint" {
   value = "postgresql://${var.database_username}:${data.aws_ssm_parameter.database_password.value}@${module.postgresql_rds.endpoint}/${terraform.workspace}"
 }
+
+# Email
+
+resource "aws_iam_access_key" "mailer" {
+  user = "${aws_iam_user.mailer.name}"
+}
+
+resource "aws_ses_domain_identity" "default" {
+  domain = "${var.domain}"
+}
+
+resource "aws_iam_user" "mailer" {
+  name = "mailer"
+}
+
+resource "aws_iam_policy" "policy" {
+  policy = <<EOF
+{
+  "Id":"MailerAuthorizationPolicy",
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Sid":"AuthorizeIAMUser",
+      "Effect":"Allow",
+      "Resource":"${aws_ses_domain_identity.default.arn}",
+      "Principal":{
+        "AWS":[
+          "${aws_iam_user.mailer.arn}
+        ]
+      },
+      "Action":[
+        "SES:SendEmail",
+        "SES:SendRawEmail"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "dnsimple_record" "ses" {
+  domain = "${var.domain}"
+  name   = "_amazonses"
+  value  = "${aws_ses_domain_identity.default.verification_token}"
+  type   = "TXT"
+  ttl    = 600
+}
+
+output "smpt_password" {
+  value = "${aws_iam_access_key.mailer.ses_smpt_password}"
+}
+
+output "smtp_username" {
+  value = "${aws_iam_user.mailer.name}"
+}
+
+output "smtp_server" {
+  value = "email-smtp.${var.region}.amazonaws.com"
+}

@@ -59,10 +59,18 @@ defmodule Haterblock.Sync do
     end
   end
 
-  defp finish_syncing(%{user: user, new_comment_count: new_comment_count}) do
+  defp finish_syncing(%{user: user, new_comment_count: new_comment_count})
+       when new_comment_count > 0 do
+    Haterblock.Emails.new_negative_comments(user, new_comment_count)
+    |> Haterblock.Mailer.deliver_now()
+
     HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
       synced_at: user.synced_at,
       new_comment_count: new_comment_count
     })
+  end
+
+  defp finish_syncing(_) do
+    :ok
   end
 end
