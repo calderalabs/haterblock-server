@@ -207,21 +207,26 @@ resource "aws_iam_user_policy" "mailer" {
 
   policy = <<EOF
 {
-  "Id":"MailerAuthorizationPolicy",
-  "Version":"2012-10-17",
-  "Statement":[
-    {
-      "Sid":"AuthorizeIAMUser",
-      "Effect":"Allow",
-      "Resource":"${aws_ses_domain_identity.default.arn}",
-      "Action":[
-        "SES:SendEmail",
-        "SES:SendRawEmail"
-      ]
-    }
-  ]
+  "Statement": [{
+    "Effect":"Allow",
+    "Action":"ses:SendRawEmail",
+    "Resource":"${aws_ses_domain_identity.default.arn}"
+  }]
 }
 EOF
+}
+
+resource "aws_ses_domain_dkim" "default" {
+  domain = "${aws_ses_domain_identity.default.domain}"
+}
+
+resource "dnsimple_record" "dkim" {
+  count  = 3
+  domain = "${var.domain}"
+  name   = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}._domainkey"
+  type   = "CNAME"
+  ttl    = 600
+  value  = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}.dkim.amazonses.com"
 }
 
 resource "dnsimple_record" "ses" {
