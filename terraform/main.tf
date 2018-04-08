@@ -95,8 +95,8 @@ module "notify_slack" {
   sns_topic_name = "slack-topic"
 
   slack_webhook_url = "${data.aws_ssm_parameter.slack_webhook.value}"
-  slack_channel     = "aws-notification"
-  slack_username    = "reporter"
+  slack_channel     = "alerts"
+  slack_username    = "amazon-reporter"
 }
 
 resource "aws_cloudwatch_metric_alarm" "web_cpu" {
@@ -107,7 +107,7 @@ resource "aws_cloudwatch_metric_alarm" "web_cpu" {
   namespace           = "AWS/EC2"
   period              = "120"
   statistic           = "Average"
-  threshold           = "80"
+  threshold           = "50"
   alarm_description   = "This metric monitors ec2 cpu utilization"
   alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
 
