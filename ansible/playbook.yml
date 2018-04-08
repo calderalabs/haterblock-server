@@ -15,6 +15,7 @@
       SMTP_PASSWORD={{lookup('env', 'SMTP_PASSWORD')}}
       {{lookup('file', env_file_path)}}"
     config_hash: "{{config | regex_replace('\\n', '') | regex_replace('\\s\\s+', ' ') | hash('sha1')}}"
+    config_hash_path: "{{ansible_env.HOME}}/config-hash"
   tasks:
     - command: dokku domains:report default --domains-app-vhosts
       name: list dokku domains
@@ -26,10 +27,16 @@
       register: dokku_domains_add_result
       when: full_domain not in dokku_domains_report_result.stdout.split(' ')
       changed_when: dokku_domains_add_result is succeeded
+    - command: cat {{config_hash_path}}
+      name: fetch config hash
+      register: cat_config_hash_result
+      changed_when: false
+      failed_when: cat_config_hash_result.rc != 0 and cat_config_hash_result.rc != 1
     - include_role:
         name: dokku/config
       vars:
         value: "{{config}}"
-      when: (last_config_hash is not defined) or config_hash != last_config_hash
-    - set_fact:
-        last_config_hash: "{{config_hash}}"
+      when: (cat_config_hash_result.stdout | regex_replace('\n', '')) != config_hash
+    - copy:
+        content: "{{config_hash}}"
+        dest: "{{config_hash_path}}"

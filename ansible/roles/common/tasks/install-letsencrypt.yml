@@ -8,11 +8,15 @@
   become: true
   when: "'letsencrypt' not in dokku_plugin_result.stdout"
   changed_when: dokku_plugin_install_letsencrypt_result is succeeded
+- command: dokku config:get --global DOKKU_LETSENCRYPT_EMAIL
+  register: dokku_config_get_result
+  changed_when: false
 - include_role:
     name: dokku/config
   vars:
     value: DOKKU_LETSENCRYPT_EMAIL={{letsencrypt_email}}
     scope: global
+  when: dokku_config_get_result.stdout != letsencrypt_email
 - command: crontab -l -u dokku
   name: list crontab entries
   register: crontab_list_result
