@@ -167,6 +167,23 @@ module "postgresql_rds" {
   environment = "${terraform.workspace}"
 }
 
+resource "aws_cloudwatch_metric_alarm" "db_connections" {
+  alarm_name          = "DB Connections"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "DatabaseConnections"
+  namespace           = "AWS/RDS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "50"
+  alarm_description   = "This metric monitors rds db connections"
+  alarm_actions       = ["${module.notify_slack.this_slack_topic_arn}"]
+
+  dimensions {
+    DBInstanceIdentifier = "${module.postgresql_rds.id}"
+  }
+}
+
 output "database_endpoint" {
   value = "postgresql://${var.database_username}:${data.aws_ssm_parameter.database_password.value}@${module.postgresql_rds.endpoint}/${terraform.workspace}"
 }
