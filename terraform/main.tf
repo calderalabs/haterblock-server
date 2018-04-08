@@ -184,7 +184,7 @@ resource "aws_cloudwatch_metric_alarm" "db_connections" {
   }
 }
 
-output "database_endpoint" {
+output "database_url" {
   value = "postgresql://${var.database_username}:${data.aws_ssm_parameter.database_password.value}@${module.postgresql_rds.endpoint}/${terraform.workspace}"
 }
 
@@ -247,4 +247,8 @@ output "smtp_username" {
 
 output "smtp_server" {
   value = "email-smtp.${var.aws_region}.amazonaws.com"
+}
+
+output "ses_domain_identity_arn" {
+  value = "${aws_ses_domain_identity.default.arn}"
 }

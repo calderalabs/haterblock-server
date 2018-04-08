@@ -7,9 +7,14 @@
     domain: "{{lookup('env', 'DOMAIN')}}"
     full_domain: "{{(subdomain == '') | ternary(domain, '%s.%s' % (subdomain, domain))}}"
     env_file_path: "{{lookup('env', 'ENV_FILE_PATH')}}"
-    env_file: "{{lookup('file', env_file_path).replace('\n', ' ')}}"
-    env_file_hash: "{{env_file | hash('sha1')}}"
-    last_env_file_hash: null
+    config:
+      "DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
+      SES_DOMAIN_IDENTITY_ARN={{lookup('env', 'SES_DOMAIN_IDENTITY_ARN')}}
+      SMTP_SERVER={{lookup('env', 'SMTP_SERVER')}}
+      SMTP_USERNAME={{lookup('env', 'SMTP_USERNAME')}}
+      SMTP_PASSWORD={{lookup('env', 'SMTP_PASSWORD')}}
+      {{lookup('file', env_file_path)}}"
+    config_hash: "{{config | regex_replace('\\n', '') | regex_replace('\\s\\s+', ' ') | hash('sha1')}}"
   tasks:
     - command: dokku domains:report default --domains-app-vhosts
       name: list dokku domains
@@ -24,15 +29,7 @@
     - include_role:
         name: dokku/config
       vars:
-        value: |
-          DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
-          SMTP_SERVER={{lookup('env', 'SMTP_SERVER')}}
-          SMTP_USERNAME={{lookup('env', 'SMTP_USERNAME')}}
-          SMTP_PASSWORD={{lookup('env', 'SMTP_PASSWORD')}}
-    - include_role:
-        name: dokku/config
-      vars:
-        value: "{{env_file}}"
-      when: env_file_hash != last_env_file_hash
+        value: "{{config}}"
+      when: (last_config_hash is not defined) or config_hash != last_config_hash
     - set_fact:
-        last_env_file_hash: "{{env_file_hash}}"
+        last_config_hash: "{{config_hash}}"

@@ -5,7 +5,8 @@ cd "$app_root/terraform"
 "$app_root/bin/terraform/apply" $1
 
 ENV_FILE_PATH="$app_root/.env.$1"\
-  DATABASE_URL=$(terraform output database_endpoint)\
+  DATABASE_URL=$(terraform output database_url)\
+  SES_DOMAIN_IDENTITY_ARN=$(terraform output ses_domain_identity_arn)\
   SMTP_SERVER=$(terraform output smtp_server)\
   SMTP_USERNAME=$(terraform output smtp_username)\
   SMTP_PASSWORD=$(terraform output smtp_password)\
