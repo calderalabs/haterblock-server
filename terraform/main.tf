@@ -1,8 +1,6 @@
-provider "aws" {
-  region     = "${var.aws_region}"
-  access_key = "${var.aws_access_key_id}"
-  secret_key = "${var.aws_secret_key}"
-}
+provider "aws" {}
+
+data "aws_region" "current" {}
 
 data "aws_ssm_parameter" "dnsimple_account" {
   name = "/haterblock-server/${terraform.workspace}/dnsimple/account"
@@ -255,7 +253,7 @@ output "smtp_username" {
 }
 
 output "smtp_server" {
-  value = "email-smtp.${var.aws_region}.amazonaws.com"
+  value = "email-smtp.${data.aws_region.current.name}.amazonaws.com"
 }
 
 output "ses_domain_identity_arn" {
