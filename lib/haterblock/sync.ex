@@ -16,7 +16,7 @@ defmodule Haterblock.Sync do
 
   defp perform_syncing(
          user,
-         %{page: page, new_comment_count: new_comment_count} \\ %{page: nil, new_comment_count: 0}
+         %{page: page, new_comments: new_comments} \\ %{page: nil, new_comments: []}
        ) do
     %{next_page: next_page, comments: comments} =
       user |> Haterblock.Youtube.list_comments(%{page: page})
@@ -35,44 +35,53 @@ defmodule Haterblock.Sync do
       )
       |> Haterblock.Repo.all()
 
-    new_comments =
+    page_new_comments =
       recent_comments
       |> Enum.filter(fn comment ->
         !(existing_comments_ids |> Enum.member?(comment.google_id))
       end)
       |> Haterblock.GoogleNlp.assign_sentiment_scores()
 
-    new_comments |> Enum.each(&Haterblock.Repo.insert/1)
+    page_new_comments |> Enum.each(&Haterblock.Repo.insert/1)
     last_comment = comments |> List.last()
 
-    new_comment_count = new_comment_count + Enum.count(new_comments)
+    new_comments = new_comments ++ page_new_comments
 
     if next_page && Enum.member?(new_comments, last_comment) &&
          Enum.member?(recent_comments, last_comment) do
       perform_syncing(user, %{
         page: next_page,
-        new_comment_count: new_comment_count
+        new_comments: new_comments
       })
     else
       {:ok, user} = Haterblock.Accounts.update_user(user, %{synced_at: DateTime.utc_now()})
-      %{user: user, new_comment_count: new_comment_count}
+      %{user: user, new_comments: new_comments}
     end
   end
 
-  defp finish_syncing(%{user: user, new_comment_count: new_comment_count}, notify)
-       when new_comment_count > 0 do
+  defp finish_syncing(%{user: user, new_comments: new_comments}, notify) do
     if notify do
-      HaterblockWeb.Email.new_negative_comments(user, new_comment_count)
-      |> Haterblock.Mailer.deliver_now()
+      negative_comments =
+        new_comments
+        |> Enum.filter(&(Haterblock.Comments.Comment.sentiment_from_score(&1.score) == :negative))
+
+      negative_comment_count = Enum.count(negative_comments)
+
+      if negative_comment_count > 0 do
+        HaterblockWeb.Email.new_negative_comments(user, negative_comment_count)
+        |> Haterblock.Mailer.deliver_now()
+      end
     end
 
-    HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
-      synced_at: user.synced_at,
-      new_comment_count: new_comment_count
-    })
-  end
+    new_comment_count = Enum.count(new_comments)
 
-  defp finish_syncing(_, _) do
-    :ok
+    if new_comment_count > 0 do
+      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
+        synced_at: user.synced_at,
+        new_comment_count: new_comment_count
+      })
+    else
+      :ok
+    end
   end
 end
