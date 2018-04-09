@@ -4,9 +4,18 @@ provider "aws" {
   secret_key = "${var.aws_secret_key}"
 }
 
+data "aws_ssm_parameter" "dnsimple_account" {
+  name = "/haterblock-server/${terraform.workspace}/dnsimple/account"
+  with_decryption = false
+}
+
+data "aws_ssm_parameter" "dnsimple_token" {
+  name = "/haterblock-server/${terraform.workspace}/dnsimple/token"
+}
+
 provider "dnsimple" {
-  token   = "${var.dnsimple_token}"
-  account = "${var.dnsimple_account}"
+  token   = "${data.aws_ssm_parameter.dnsimple_token.value}"
+  account = "${data.aws_ssm_parameter.dnsimple_account.value}"
 }
 
 data "aws_vpc" "default" {
@@ -86,7 +95,7 @@ output "public_ip" {
 # Alarms
 
 data "aws_ssm_parameter" "slack_webhook" {
-  name = "/haterblock-server/slack/incoming-webhooks/url"
+  name = "/haterblock-server/${terraform.workspace}/slack/incoming-webhooks/url"
 }
 
 module "notify_slack" {
@@ -119,7 +128,7 @@ resource "aws_cloudwatch_metric_alarm" "web_cpu" {
 # Database
 
 data "aws_ssm_parameter" "database_password" {
-  name = "/haterblock-server/database/password"
+  name = "/haterblock-server/${terraform.workspace}/database/password"
 }
 
 data "aws_subnet_ids" "default" {
