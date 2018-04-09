@@ -15,7 +15,7 @@ defmodule HaterblockWeb.AuthController do
              name: auth.info.name
            }) do
       Task.Supervisor.async_nolink(Haterblock.TaskSupervisor, fn ->
-        Haterblock.Sync.sync_user_comments(user)
+        Haterblock.Sync.sync_user_comments(user, %{notify: false})
       end)
 
       conn
