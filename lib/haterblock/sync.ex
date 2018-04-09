@@ -8,10 +8,10 @@ defmodule Haterblock.Sync do
     end)
   end
 
-  def sync_user_comments(user) do
+  def sync_user_comments(user, %{notify: notify} \\ %{notify: true}) do
     user
     |> perform_syncing
-    |> finish_syncing
+    |> finish_syncing(notify)
   end
 
   defp perform_syncing(
@@ -59,10 +59,12 @@ defmodule Haterblock.Sync do
     end
   end
 
-  defp finish_syncing(%{user: user, new_comment_count: new_comment_count})
+  defp finish_syncing(%{user: user, new_comment_count: new_comment_count}, notify)
        when new_comment_count > 0 do
-    Haterblock.Emails.new_negative_comments(user, new_comment_count)
-    |> Haterblock.Mailer.deliver_now()
+    if notify do
+      HaterblockWeb.Email.new_negative_comments(user, new_comment_count)
+      |> Haterblock.Mailer.deliver_now()
+    end
 
     HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
       synced_at: user.synced_at,
@@ -70,7 +72,7 @@ defmodule Haterblock.Sync do
     })
   end
 
-  defp finish_syncing(_) do
+  defp finish_syncing(_, _) do
     :ok
   end
 end

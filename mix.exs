@@ -54,7 +54,9 @@ defmodule Haterblock.Mixfile do
       {:sentry, "~> 6.1.0"},
       {:bamboo, "~> 0.8"},
       {:inflex, "~> 1.10.0"},
-      {:bamboo_smtp, "~> 1.4.0"}
+      {:bamboo_smtp, "~> 1.4.0"},
+      {:premailex, "~> 0.1"},
+      {:phoenix_html, "~> 2.10"}
     ]
   end
 

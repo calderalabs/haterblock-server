@@ -32,6 +32,8 @@ defmodule HaterblockWeb do
         root: "lib/haterblock_web/templates",
         namespace: HaterblockWeb
 
+      use Phoenix.HTML
+
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]
 

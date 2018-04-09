@@ -16,4 +16,8 @@ defmodule HaterblockWeb.Router do
     resources("/comments", CommentController, only: [:index])
     resources("/rejections", RejectionController, only: [:create])
   end
+
+  if Mix.env() == :dev do
+    forward("/sent_emails", Bamboo.EmailPreviewPlug)
+  end
 end

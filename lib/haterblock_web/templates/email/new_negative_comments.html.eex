@@ -1,0 +1,4 @@
+<h4>Hi, <%= assigns.user_name %></h4>
+
+<p class="lead">You have <%= assigns.count %> new negative <%= Inflex.inflect("comments", assigns.count) %>.</p>
+<p>Go to your <a href="https://gethaterblock.com">dashboard</a> to check <%= if assigns.count > 1 do "them" else "it" end %> out.</p>
