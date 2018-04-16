@@ -74,7 +74,7 @@ defmodule Haterblock.Comments do
   defp base_query do
     from(
       c in Comment,
-      order_by: [desc: c.score, desc: c.published_at]
+      order_by: [desc: c.published_at]
     )
   end
 
