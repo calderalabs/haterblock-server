@@ -32,26 +32,56 @@ defmodule Haterblock.Comments do
 
   def list_comments_for_user(
         user,
-        %{page: page, rejected: rejected} \\ %{page: 1, rejected: false}
+        %{page: page, statuses: statuses, sentiments: sentiments} \\ %{
+          page: 1,
+          statuses: ["published"],
+          sentiments: ["negative"]
+        }
       ) do
-    where =
-      if rejected do
-        [user_id: user.id, status: "rejected"]
-      else
-        [user_id: user.id, status: "published"]
-      end
-
     from(
       c in base_query(),
-      where: ^where
+      where: c.user_id == ^user.id
     )
+    |> comments_for_statuses(statuses)
+    |> comments_for_sentiments(sentiments)
     |> Repo.paginate(page: page)
+  end
+
+  defp comments_for_statuses(query, statuses) do
+    if Enum.empty?(statuses) do
+      none_query(query)
+    else
+      from(
+        c in query,
+        where: c.status in ^statuses
+      )
+    end
+  end
+
+  defp comments_for_sentiments(query, sentiments) do
+    if Enum.empty?(sentiments) do
+      none_query(query)
+    else
+      {min, max} = Comment.range_for_sentiments(sentiments)
+
+      from(
+        c in query,
+        where: c.score >= ^min and c.score <= ^max
+      )
+    end
   end
 
   defp base_query do
     from(
       c in Comment,
       order_by: [desc: c.score, desc: c.published_at]
+    )
+  end
+
+  defp none_query(query) do
+    from(
+      c in query,
+      where: false == true
     )
   end
 

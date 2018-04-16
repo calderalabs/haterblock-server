@@ -51,4 +51,28 @@ defmodule Haterblock.Comments.Comment do
 
     sentiment
   end
+
+  def range_for_sentiments(sentiments) do
+    sentiments
+    |> Enum.map(fn sentiment ->
+      @ranges |> Map.get(sentiment |> String.to_atom())
+    end)
+    |> Enum.reduce(fn {acc_min, acc_max}, {next_min, next_max} ->
+      min =
+        if next_min < acc_min do
+          next_min
+        else
+          acc_min
+        end
+
+      max =
+        if next_max > acc_max do
+          next_max
+        else
+          acc_max
+        end
+
+      {min, max}
+    end)
+  end
 end
