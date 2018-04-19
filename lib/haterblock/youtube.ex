@@ -13,27 +13,33 @@ defmodule Haterblock.Youtube do
              "Bearer realm=\"https://accounts.google.com/\", error=invalid_token"
          }
        }} ->
-        body = [
-          client_id: System.get_env("GOOGLE_CLIENT_ID"),
-          client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-          refresh_token: user.google_refresh_token,
-          grant_type: "refresh_token"
-        ]
+        refresh_token(user, fun)
 
-        with {:ok, %HTTPoison.Response{body: body}} <-
-               HTTPoison.post("https://www.googleapis.com/oauth2/v4/token", {:form, body}, [
-                 {"Content-Type", "application/x-www-form-urlencoded"}
-               ]) do
-          %{"access_token" => access_token} = body |> Poison.decode!()
-
-          {:ok, updated_user} =
-            user |> Haterblock.Accounts.update_user(%{google_token: access_token})
-
-          request(updated_user, fun)
-        end
+      {:error, %{status: 403}} ->
+        refresh_token(user, fun)
 
       {:error, %{status: 204} = response} ->
         {:ok, response}
+    end
+  end
+
+  defp refresh_token(user, fun) do
+    body = [
+      client_id: System.get_env("GOOGLE_CLIENT_ID"),
+      client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+      refresh_token: user.google_refresh_token,
+      grant_type: "refresh_token"
+    ]
+
+    with {:ok, %HTTPoison.Response{body: body}} <-
+           HTTPoison.post("https://www.googleapis.com/oauth2/v4/token", {:form, body}, [
+             {"Content-Type", "application/x-www-form-urlencoded"}
+           ]) do
+      %{"access_token" => access_token} = body |> Poison.decode!()
+
+      {:ok, updated_user} = user |> Haterblock.Accounts.update_user(%{google_token: access_token})
+
+      request(updated_user, fun)
     end
   end
 
