@@ -17,6 +17,7 @@ defmodule Haterblock.Comments.Comment do
     field(:user_id, :integer)
     field(:status, :string)
     field(:published_at, :utc_datetime)
+    field(:video_id, :string)
 
     timestamps()
   end
@@ -35,7 +36,8 @@ defmodule Haterblock.Comments.Comment do
       google_id: youtube_comment.id,
       body: youtube_comment.snippet.textDisplay,
       status: youtube_comment.snippet.moderationStatus || "published",
-      published_at: published_at
+      published_at: published_at,
+      video_id: youtube_comment.snippet.videoId
     }
   end
 

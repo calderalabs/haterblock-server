@@ -24,7 +24,8 @@ defmodule HaterblockWeb.CommentView do
         body: comment.body,
         sentiment: Comment.sentiment_from_score(comment.score),
         status: comment.status,
-        published_at: comment.published_at
+        published_at: comment.published_at,
+        video_id: comment.video_id
       }
     }
   end
