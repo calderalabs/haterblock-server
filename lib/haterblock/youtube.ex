@@ -101,6 +101,7 @@ defmodule Haterblock.Youtube do
 
         GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(conn, "id,snippet", [
           {:allThreadsRelatedToChannelId, channel.id},
+          {:textFormat, "plainText"},
           {:maxResults, 100},
           {:pageToken, page}
         ])
