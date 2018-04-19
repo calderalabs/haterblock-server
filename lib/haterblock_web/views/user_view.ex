@@ -11,6 +11,14 @@ defmodule HaterblockWeb.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id, attributes: %{name: user.name, email: user.email, synced_at: user.synced_at}}
+    %{
+      id: user.id,
+      attributes: %{
+        name: user.name,
+        email: user.email,
+        synced_at: user.synced_at,
+        auto_reject_enabled: user.auto_reject_enabled
+      }
+    }
   end
 end

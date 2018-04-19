@@ -13,6 +13,7 @@ defmodule HaterblockWeb.Router do
 
     post("/auth/:provider/callback", AuthController, :callback)
     get("/users/me", UserController, :show)
+    put("/users/me", UserController, :update)
     resources("/comments", CommentController, only: [:index])
     resources("/rejections", RejectionController, only: [:create])
   end
