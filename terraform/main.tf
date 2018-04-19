@@ -3,7 +3,7 @@ provider "aws" {}
 data "aws_region" "current" {}
 
 data "aws_ssm_parameter" "dnsimple_account" {
-  name = "/haterblock-server/${terraform.workspace}/dnsimple/account"
+  name            = "/haterblock-server/${terraform.workspace}/dnsimple/account"
   with_decryption = false
 }
 
@@ -155,7 +155,7 @@ resource "aws_security_group" "postgresql" {
 }
 
 module "postgresql_rds" {
-  source                = "github.com/calderalabs/terraform-aws-postgresql-rds?ref=ae859baaf804220f63c22f1eedaa911bc4b214ab"
+  source                = "github.com/calderalabs/terraform-aws-postgresql-rds?ref=14ccfbe4b72a5ace9990e17317ac930e46421ecc"
   vpc_security_group_id = "${aws_security_group.postgresql.id}"
   engine_version        = "10.3"
   instance_type         = "${var.aws_database_type}"
@@ -165,6 +165,7 @@ module "postgresql_rds" {
   database_password     = "${data.aws_ssm_parameter.database_password.value}"
   subnet_group          = "${aws_db_subnet_group.default.name}"
   parameter_group       = "${aws_db_parameter_group.default.name}"
+  publicly_accessible   = true
 
   ok_actions                = ["${module.notify_slack.this_slack_topic_arn}"]
   alarm_actions             = ["${module.notify_slack.this_slack_topic_arn}"]
