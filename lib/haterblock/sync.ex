@@ -61,14 +61,14 @@ defmodule Haterblock.Sync do
 
   defp finish_syncing(%{user: user, new_comments: new_comments}, notify) do
     if notify do
-      negative_comments =
+      hateful_comments =
         new_comments
-        |> Enum.filter(&(Haterblock.Comments.Comment.sentiment_from_score(&1.score) == :negative))
+        |> Enum.filter(&(Haterblock.Comments.Comment.sentiment_from_score(&1.score) == :hateful))
 
-      negative_comment_count = Enum.count(negative_comments)
+      hateful_comment_count = Enum.count(hateful_comments)
 
-      if negative_comment_count > 0 do
-        HaterblockWeb.Email.new_negative_comments(user, negative_comment_count)
+      if hateful_comment_count > 0 do
+        HaterblockWeb.Email.new_hateful_comments(user, hateful_comment_count)
         |> Haterblock.Mailer.deliver_now()
       end
     end

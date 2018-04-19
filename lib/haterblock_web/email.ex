@@ -1,11 +1,11 @@
 defmodule HaterblockWeb.Email do
   use Bamboo.Phoenix, view: HaterblockWeb.EmailView
 
-  def new_negative_comments(user, count) do
+  def new_hateful_comments(user, count) do
     base_email(user)
-    |> subject("You have #{count} new negative #{Inflex.inflect("comments", count)}.")
+    |> subject("You have #{count} new hateful #{Inflex.inflect("comments", count)}.")
     |> assign(:count, count)
-    |> render("new_negative_comments.html")
+    |> render("new_hateful_comments.html")
     |> premail()
   end
 

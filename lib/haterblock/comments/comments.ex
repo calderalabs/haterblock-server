@@ -35,7 +35,7 @@ defmodule Haterblock.Comments do
         %{page: page, statuses: statuses, sentiments: sentiments} \\ %{
           page: 1,
           statuses: ["published"],
-          sentiments: ["negative"]
+          sentiments: ["hateful", "negative"]
         }
       ) do
     from(
