@@ -3,12 +3,27 @@ provider "aws" {}
 data "aws_region" "current" {}
 
 data "aws_ssm_parameter" "dnsimple_account" {
-  name            = "/haterblock-server/${terraform.workspace}/dnsimple/account"
-  with_decryption = false
+  name = "dnsimple-account"
 }
 
 data "aws_ssm_parameter" "dnsimple_token" {
-  name = "/haterblock-server/${terraform.workspace}/dnsimple/token"
+  name = "dnsimple-token"
+}
+
+data "aws_ssm_parameter" "slack_webhook" {
+  name = "/${var.app_name}/default/slack/incoming-webhooks-url"
+}
+
+data "aws_ssm_parameter" "database_password" {
+  name = "/${var.app_name}/${terraform.workspace}/database/password"
+}
+
+data "aws_ssm_parameter" "domain" {
+  name = "/${var.app_name}/${terraform.workspace}/domain"
+}
+
+data "aws_ssm_parameter" "subdomain" {
+  name = "/${var.app_name}/default/subdomain"
 }
 
 provider "dnsimple" {
@@ -80,8 +95,8 @@ resource "aws_eip" "web" {
 }
 
 resource "dnsimple_record" "a" {
-  domain = "${var.domain}"
-  name   = "${var.subdomain}"
+  domain = "${data.aws_ssm_parameter.domain.value}"
+  name   = "${data.aws_ssm_parameter.subdomain.value}"
   value  = "${aws_eip.web.public_ip}"
   type   = "A"
 }
@@ -91,10 +106,6 @@ output "public_ip" {
 }
 
 # Alarms
-
-data "aws_ssm_parameter" "slack_webhook" {
-  name = "/haterblock-server/${terraform.workspace}/slack/incoming-webhooks/url"
-}
 
 module "notify_slack" {
   source = "terraform-aws-modules/notify-slack/aws"
@@ -124,10 +135,6 @@ resource "aws_cloudwatch_metric_alarm" "web_cpu" {
 }
 
 # Database
-
-data "aws_ssm_parameter" "database_password" {
-  name = "/haterblock-server/${terraform.workspace}/database/password"
-}
 
 data "aws_subnet_ids" "default" {
   vpc_id = "${data.aws_vpc.default.id}"
@@ -171,7 +178,7 @@ module "postgresql_rds" {
   alarm_actions             = ["${module.notify_slack.this_slack_topic_arn}"]
   insufficient_data_actions = ["${module.notify_slack.this_slack_topic_arn}"]
 
-  project     = "haterblock"
+  project     = "${var.app_name}"
   environment = "${terraform.workspace}"
 }
 
@@ -203,7 +210,7 @@ resource "aws_iam_user" "mailer" {
 }
 
 resource "aws_ses_domain_identity" "default" {
-  domain = "${var.domain}"
+  domain = "${data.aws_ssm_parameter.domain.value}"
 }
 
 resource "aws_iam_access_key" "mailer" {
@@ -230,7 +237,7 @@ resource "aws_ses_domain_dkim" "default" {
 
 resource "dnsimple_record" "dkim" {
   count  = 3
-  domain = "${var.domain}"
+  domain = "${data.aws_ssm_parameter.domain.value}"
   name   = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}._domainkey"
   type   = "CNAME"
   ttl    = 600
@@ -238,7 +245,7 @@ resource "dnsimple_record" "dkim" {
 }
 
 resource "dnsimple_record" "ses" {
-  domain = "${var.domain}"
+  domain = "${data.aws_ssm_parameter.domain.value}"
   name   = "_amazonses"
   value  = "${aws_ses_domain_identity.default.verification_token}"
   type   = "TXT"

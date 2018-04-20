@@ -1,6 +1,5 @@
 variable "ssh_public_key_file" {}
-variable "domain" {}
-variable "subdomain" {}
+variable "app_name" {}
 
 variable "aws_instance_type" {
   default = "t2.micro"

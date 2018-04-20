@@ -3,17 +3,22 @@
     - common
 - hosts: all:!packer
   vars:
-    subdomain: "{{lookup('env', 'SUBDOMAIN')}}"
-    domain: "{{lookup('env', 'DOMAIN')}}"
+    env: "{{lookup('env', 'ENV')}}"
+    app_name: "{{lookup('env', 'APP_NAME')}}"
+    subdomain: "{{lookup('aws_ssm', '/%s/default/subdomain' % app_name) or lookup('aws_ssm', '/%s/%s/subdomain' % (app_name, env))}}"
+    domain: "{{lookup('aws_ssm', '/%s/default/domain' % app_name) or lookup('aws_ssm', '/%s/%s/domain' % (app_name, env))}}"
     full_domain: "{{(subdomain == '') | ternary(domain, '%s.%s' % (subdomain, domain))}}"
-    env_file_path: "{{lookup('env', 'ENV_FILE_PATH')}}"
+    app_env: "{% for key, value in (lookup('aws_ssm', ('/%s/default/env' % app_name), decrypt=true, bypath=true, recursive=true) |
+                                    combine(lookup('aws_ssm', ('/%s/%s/env' % (app_name, env)), decrypt=true, bypath=true, recursive=true))).iteritems() %}
+      {{key.split('/')[-1]}}={{value}}
+    {% endfor %}"
     config:
       "DATABASE_URL={{lookup('env', 'DATABASE_URL')}}
       SES_DOMAIN_IDENTITY_ARN={{lookup('env', 'SES_DOMAIN_IDENTITY_ARN')}}
       SMTP_SERVER={{lookup('env', 'SMTP_SERVER')}}
       SMTP_USERNAME={{lookup('env', 'SMTP_USERNAME')}}
       SMTP_PASSWORD={{lookup('env', 'SMTP_PASSWORD')}}
-      {{lookup('file', env_file_path)}}"
+      {{app_env}}"
     config_hash: "{{config | regex_replace('\\n', '') | regex_replace('\\s\\s+', ' ') | hash('sha1')}}"
     config_hash_path: "{{ansible_env.HOME}}/config-hash"
   tasks:

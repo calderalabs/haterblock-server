@@ -5,6 +5,5 @@ cd "$app_root/terraform"
 terraform workspace select $1
 
 terraform destroy\
-  -var="domain=$DOMAIN"\
-  -var="subdomain=$SUBDOMAIN"\
   -var="ssh_public_key_file=$SSH_PUBLIC_KEY_FILE"
+  -var="app_name=$APP_NAME"
