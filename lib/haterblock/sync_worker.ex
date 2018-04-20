@@ -19,13 +19,10 @@ defmodule Haterblock.SyncWorker do
   end
 
   defp schedule_work() do
-    interval =
-      if System.get_env("SYNC_WORKER_INTERVAL") do
-        String.to_integer(System.get_env("SYNC_WORKER_INTERVAL"))
-      else
-        @default_interval
-      end
-
-    Process.send_after(self(), :work, interval)
+    Process.send_after(
+      self(),
+      :work,
+      String.to_integer(System.get_env("SYNC_WORKER_INTERVAL") || @default_interval)
+    )
   end
 end
