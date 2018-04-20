@@ -78,4 +78,9 @@ defmodule Haterblock.Comments.Comment do
       {min, max}
     end)
   end
+
+  def filter_hateful_comments(comments) do
+    comments
+    |> Enum.filter(&(sentiment_from_score(&1.score) == :hateful))
+  end
 end

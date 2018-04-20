@@ -42,9 +42,15 @@ defmodule Haterblock.Sync do
       end)
       |> Haterblock.GoogleNlp.assign_sentiment_scores()
 
-    page_new_comments |> Enum.each(&Haterblock.Repo.insert/1)
-    last_comment = comments |> List.last()
+    page_new_comments = page_new_comments |> Enum.map(&Haterblock.Repo.insert!/1)
 
+    if user.auto_reject_enabled && !Enum.empty?(page_new_comments) do
+      page_new_comments
+      |> Haterblock.Comments.Comment.filter_hateful_comments()
+      |> Haterblock.Comments.reject_comments(user)
+    end
+
+    last_comment = comments |> List.last()
     new_comments = new_comments ++ page_new_comments
 
     if next_page && Enum.member?(new_comments, last_comment) &&
@@ -61,21 +67,26 @@ defmodule Haterblock.Sync do
 
   defp finish_syncing(%{user: user, new_comments: new_comments}, notify) do
     if notify do
-      hateful_comments =
-        new_comments
-        |> Enum.filter(&(Haterblock.Comments.Comment.sentiment_from_score(&1.score) == :hateful))
-
-      hateful_comment_count = Enum.count(hateful_comments)
+      hateful_comment_count =
+        Haterblock.Comments.Comment.filter_hateful_comments(new_comments) |> Enum.count()
 
       if hateful_comment_count > 0 do
-        HaterblockWeb.Email.new_hateful_comments(user, hateful_comment_count)
-        |> Haterblock.Mailer.deliver_now()
+        email =
+          if user.auto_reject_enabled do
+            HaterblockWeb.Email.rejected_hateful_comments(user, hateful_comment_count)
+          else
+            HaterblockWeb.Email.new_hateful_comments(user, hateful_comment_count)
+          end
+
+        email |> Haterblock.Mailer.deliver_now()
       end
     end
 
     new_comment_count = Enum.count(new_comments)
 
     if new_comment_count > 0 do
+      :timer.sleep(2000)
+
       HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
         synced_at: user.synced_at,
         new_comment_count: new_comment_count

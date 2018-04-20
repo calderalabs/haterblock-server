@@ -1,0 +1,4 @@
+<h4>Hi, <%= assigns.user_name %></h4>
+
+<p class="lead"><%= assigns.count %> new hateful <%= Inflex.inflect("comments", assigns.count) %> <%= if assigns.count > 1 do "have" else "has" end %> been rejected.</p>
+<p>Go to your <a href="https://gethaterblock.com">dashboard</a> to check <%= if assigns.count > 1 do "them" else "it" end %> out.</p>

@@ -9,6 +9,22 @@ defmodule HaterblockWeb.Email do
     |> premail()
   end
 
+  def rejected_hateful_comments(user, count) do
+    base_email(user)
+    |> subject(
+      "#{count} new hateful #{Inflex.inflect("comments", count)} #{
+        if count > 1 do
+          "have"
+        else
+          "has"
+        end
+      } been rejected."
+    )
+    |> assign(:count, count)
+    |> render("rejected_hateful_comments.html")
+    |> premail()
+  end
+
   defp base_email(user) do
     new_email()
     |> to({user.name, user.email})
