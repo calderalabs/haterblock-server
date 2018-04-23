@@ -15,6 +15,8 @@ defmodule HaterblockWeb.CommentController do
         page: params |> Map.get("page")
       })
 
-    render(conn, "index.json", collection: collection)
+    counts = Comments.counts_for_user(conn.assigns.current_user)
+
+    render(conn, "index.json", collection: collection, counts: counts)
   end
 end

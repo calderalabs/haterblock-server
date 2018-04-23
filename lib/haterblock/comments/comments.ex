@@ -38,10 +38,7 @@ defmodule Haterblock.Comments do
           sentiments: ["hateful", "negative"]
         }
       ) do
-    from(
-      c in base_query(),
-      where: c.user_id == ^user.id
-    )
+    comments_for_user(user)
     |> comments_for_statuses(statuses)
     |> comments_for_sentiments(sentiments)
     |> Repo.paginate(page: page)
@@ -83,6 +80,44 @@ defmodule Haterblock.Comments do
       c in query,
       where: false == true
     )
+  end
+
+  defp comments_for_user(user) do
+    from(
+      c in base_query(),
+      where: c.user_id == ^user.id
+    )
+  end
+
+  def counts_for_user(user) do
+    sentiments_counts =
+      Enum.reduce(["hateful", "negative", "neutral", "positive"], %{}, fn sentiment, acc ->
+        Map.put(
+          acc,
+          sentiment,
+          comments_for_sentiments(comments_for_user(user), [sentiment])
+          |> Repo.aggregate(:count, :id)
+        )
+      end)
+
+    statuses_counts =
+      Enum.reduce(["rejected", "published"], %{}, fn status, acc ->
+        Map.put(
+          acc,
+          status,
+          comments_for_statuses(comments_for_user(user), [status])
+          |> Repo.aggregate(:count, :id)
+        )
+      end)
+
+    %{
+      hateful_comments: Map.get(sentiments_counts, "hateful"),
+      negative_comments: Map.get(sentiments_counts, "negative"),
+      neutral_comments: Map.get(sentiments_counts, "neutral"),
+      positive_comments: Map.get(sentiments_counts, "positive"),
+      rejected_comments: Map.get(statuses_counts, "rejected"),
+      published_comments: Map.get(statuses_counts, "published")
+    }
   end
 
   @doc """
