@@ -6,9 +6,30 @@ defmodule Haterblock.CommentsTest do
   describe "comments" do
     alias Haterblock.Comments.Comment
 
-    @valid_attrs %{body: "some body", google_id: "some google_id", score: 0}
-    @update_attrs %{body: "some updated body", google_id: "some updated google_id", score: 1}
-    @invalid_attrs %{body: nil, google_id: nil, score: nil}
+    @valid_attrs %{
+      body: "some body",
+      google_id: "some google_id",
+      score: 0,
+      status: "published",
+      published_at: Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}"),
+      user_id: 1
+    }
+    @update_attrs %{
+      body: "some updated body",
+      google_id: "some updated google_id",
+      score: 1,
+      status: "rejected",
+      published_at: Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}"),
+      user_id: 1
+    }
+    @invalid_attrs %{
+      body: nil,
+      google_id: nil,
+      score: nil,
+      status: nil,
+      published_at: nil,
+      user_id: nil
+    }
 
     def comment_fixture(attrs \\ %{}) do
       {:ok, comment} =
@@ -34,6 +55,12 @@ defmodule Haterblock.CommentsTest do
       assert comment.body == "some body"
       assert comment.google_id == "some google_id"
       assert comment.score == 0
+      assert comment.status == "published"
+
+      assert comment.published_at ==
+               Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}")
+
+      assert comment.user_id == 1
     end
 
     test "create_comment/1 with invalid data returns error changeset" do
@@ -47,6 +74,12 @@ defmodule Haterblock.CommentsTest do
       assert comment.body == "some updated body"
       assert comment.google_id == "some updated google_id"
       assert comment.score == 1
+      assert comment.status == "rejected"
+
+      assert comment.published_at ==
+               Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}")
+
+      assert comment.user_id == 1
     end
 
     test "update_comment/2 with invalid data returns error changeset" do

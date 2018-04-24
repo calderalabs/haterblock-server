@@ -1,0 +1,2 @@
+defmodule Haterblock.GoogleLanguageTestApi do
+end

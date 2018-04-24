@@ -31,6 +31,12 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 
 config :tesla, :adapter, :ibrowse
 
+config :haterblock,
+  youtube_api: GoogleApi.YouTube.V3.Api,
+  youtube_connection: GoogleApi.YouTube.V3.Connection,
+  google_language_api: GoogleApi.Language.V1.Api,
+  google_language_connection: GoogleApi.Language.V1.Connection
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

@@ -9,11 +9,19 @@ defmodule Haterblock.AccountsTest do
     @valid_attrs %{
       google_id: "some google id",
       google_token: "some google token",
-      google_refresh_token: "some google refresh token"
+      google_refresh_token: "some google refresh token",
+      email: "test1@email.com",
+      name: "Ciccio Pasticcio",
+      synced_at: Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}"),
+      auto_reject_enabled: true
     }
     @update_attrs %{
       google_id: "some updated google id",
-      google_token: "some updated google token"
+      google_token: "some updated google token",
+      email: "test2@email.com",
+      name: "Ciccio Pasticcione",
+      synced_at: Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}"),
+      auto_reject_enabled: false
     }
     @invalid_attrs %{google_id: nil}
 

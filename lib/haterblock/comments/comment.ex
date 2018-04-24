@@ -25,8 +25,8 @@ defmodule Haterblock.Comments.Comment do
   @doc false
   def changeset(%Comment{} = comment, attrs) do
     comment
-    |> cast(attrs, [:body, :google_id, :score, :status, :published_at])
-    |> validate_required([:body, :google_id, :score, :status, :published_at])
+    |> cast(attrs, [:body, :google_id, :score, :status, :published_at, :user_id])
+    |> validate_required([:body, :google_id, :score, :status, :published_at, :user_id])
   end
 
   def from_youtube_comment(youtube_comment) do
