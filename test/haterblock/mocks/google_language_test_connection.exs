@@ -1,0 +1,2 @@
+defmodule Haterblock.GoogleLanguageTestConnection do
+end

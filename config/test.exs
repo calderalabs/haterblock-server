@@ -17,3 +17,9 @@ config :haterblock, Haterblock.Repo,
   database: "haterblock_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :haterblock,
+  youtube_api: Haterblock.YoutubeTestApi,
+  youtube_connection: Haterblock.YoutubeTestConnection,
+  google_language_api: Haterblock.GoogleLanguageTestApi,
+  google_language_connection: Haterblock.GoogleLanguageTestConnection
