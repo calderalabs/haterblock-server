@@ -22,4 +22,5 @@ config :haterblock,
   youtube_api: Haterblock.YoutubeTestApi,
   youtube_connection: Haterblock.YoutubeTestConnection,
   google_language_api: Haterblock.GoogleLanguageTestApi,
-  google_language_connection: Haterblock.GoogleLanguageTestConnection
+  google_language_connection: Haterblock.GoogleLanguageTestConnection,
+  async: TestAsync
