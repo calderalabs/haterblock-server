@@ -5,7 +5,7 @@ defmodule Haterblock.SyncTest do
     test "syncs comments not older than a week" do
     end
 
-    test "syncs only new comments" do
+    test "syncs only comments that are not already imported" do
     end
 
     test "assigns a sentiment score to every comment" do
