@@ -32,10 +32,8 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 config :tesla, :adapter, :ibrowse
 
 config :haterblock,
-  youtube_api: GoogleApi.YouTube.V3.Api,
-  youtube_connection: GoogleApi.YouTube.V3.Connection,
-  google_language_api: GoogleApi.Language.V1.Api,
-  google_language_connection: GoogleApi.Language.V1.Connection,
+  youtube_api: Haterblock.YoutubeApi,
+  google_nlp_api: Haterblock.GoogleNlpApi,
   async: Async
 
 # Import environment specific config. This must remain at the bottom

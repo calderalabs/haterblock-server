@@ -1,6 +1,5 @@
 defmodule Haterblock.GoogleNlp do
-  @google_language_api Application.get_env(:haterblock, :google_language_api)
-  @google_language_connection Application.get_env(:haterblock, :google_language_connection)
+  @google_nlp_api Application.get_env(:haterblock, :google_nlp_api)
 
   def assign_sentiment_scores(comments) do
     comments |> Parallel.pmap(&assign_sentiment_score/1)
@@ -9,7 +8,7 @@ defmodule Haterblock.GoogleNlp do
   def assign_sentiment_score(comment) do
     {:ok, response} =
       conn()
-      |> @google_language_api.Documents.language_documents_analyze_sentiment([
+      |> @google_nlp_api.language_documents_analyze_sentiment([
         {:key, System.get_env("GOOGLE_API_KEY")},
         {:body,
          %{
@@ -24,6 +23,6 @@ defmodule Haterblock.GoogleNlp do
   end
 
   defp conn do
-    @google_language_connection.new()
+    @google_nlp_api.new_connection()
   end
 end
