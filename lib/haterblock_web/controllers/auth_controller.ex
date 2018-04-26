@@ -2,6 +2,8 @@ defmodule HaterblockWeb.AuthController do
   alias Haterblock.Accounts
   alias Haterblock.Accounts.User
 
+  @async Application.get_env(:haterblock, :async)
+
   use HaterblockWeb, :controller
   plug(Ueberauth)
   action_fallback(HaterblockWeb.FallbackController)
@@ -14,15 +16,9 @@ defmodule HaterblockWeb.AuthController do
              email: auth.info.email,
              name: auth.info.name
            }) do
-      sync_task = fn ->
+      @async.perform(fn ->
         Haterblock.Sync.sync_user_comments(user, %{notify: false})
-      end
-
-      if Mix.env() == :test do
-        sync_task
-      else
-        Task.Supervisor.async_nolink(Haterblock.TaskSupervisor, sync_task)
-      end
+      end)
 
       conn
       |> put_status(:ok)
