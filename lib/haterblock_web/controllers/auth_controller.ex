@@ -14,9 +14,15 @@ defmodule HaterblockWeb.AuthController do
              email: auth.info.email,
              name: auth.info.name
            }) do
-      Task.Supervisor.async_nolink(Haterblock.TaskSupervisor, fn ->
+      sync_task = fn ->
         Haterblock.Sync.sync_user_comments(user, %{notify: false})
-      end)
+      end
+
+      if Mix.env() == :test do
+        sync_task
+      else
+        Task.Supervisor.async_nolink(Haterblock.TaskSupervisor, sync_task)
+      end
 
       conn
       |> put_status(:ok)

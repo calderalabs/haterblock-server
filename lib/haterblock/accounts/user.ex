@@ -10,7 +10,7 @@ defmodule Haterblock.Accounts.User do
     field(:email, :string)
     field(:name, :string)
     field(:synced_at, :utc_datetime)
-    field(:auto_reject_enabled, :boolean)
+    field(:auto_reject_enabled, :boolean, default: false)
 
     timestamps()
   end

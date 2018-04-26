@@ -4,7 +4,19 @@ defmodule HaterblockWeb.AuthControllerTest do
   alias Haterblock.Accounts
   alias Haterblock.Accounts.User
 
-  @ueberauth_auth %{uid: "1", credentials: %{token: "123"}}
+  @ueberauth_auth %{
+    uid: "1",
+    info: %{name: "Ciccio Pasticcio", email: "test@example.com"},
+    credentials: %{token: "123", refresh_token: "456"}
+  }
+
+  @user_attrs %{
+    google_id: "1",
+    google_token: "some google token",
+    google_refresh_token: "some google refresh token",
+    email: "test1@email.com",
+    name: "Ciccio Pasticcio"
+  }
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -24,7 +36,7 @@ defmodule HaterblockWeb.AuthControllerTest do
     end
 
     test "callback/2 returns a token and finds existing user", %{conn: conn} do
-      {:ok, user} = Accounts.create_user(%{google_id: "1", google_token: "123"})
+      {:ok, user} = Accounts.create_user(@user_attrs)
 
       response =
         HaterblockWeb.AuthController.callback(
@@ -37,10 +49,15 @@ defmodule HaterblockWeb.AuthControllerTest do
     end
 
     test "callback/2 returns a token and updates exiting user", %{conn: conn} do
-      {:ok, user} = Accounts.create_user(%{google_id: "1", google_token: "123"})
+      {:ok, user} = Accounts.create_user(@user_attrs)
 
       HaterblockWeb.AuthController.callback(
-        conn |> assign(:ueberauth_auth, %{uid: "1", credentials: %{token: "245"}}),
+        conn
+        |> assign(:ueberauth_auth, %{
+          uid: "1",
+          credentials: %{token: "245", refresh_token: "123"},
+          info: %{email: "test1@email.com", name: "Ciccio Pasticcio"}
+        }),
         %{}
       )
 

@@ -2,11 +2,15 @@ defmodule HaterblockWeb.CommentControllerTest do
   use HaterblockWeb.ConnCase
 
   alias Haterblock.Comments
-  alias Haterblock.Comments.Comment
 
-  @create_attrs %{body: "some body", google_id: "some google_id", score: 0}
-  @update_attrs %{body: "some updated body", google_id: "some updated google_id", score: 1}
-  @invalid_attrs %{body: nil, google_id: nil, score: nil}
+  @create_attrs %{
+    body: "some body",
+    google_id: "some google_id",
+    score: 0,
+    status: "published",
+    published_at: Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}"),
+    user_id: 1
+  }
 
   def fixture(:comment) do
     {:ok, comment} = Comments.create_comment(@create_attrs)
@@ -14,7 +18,23 @@ defmodule HaterblockWeb.CommentControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, user} =
+      Haterblock.Accounts.create_user(%{
+        google_id: "1",
+        google_token: "1",
+        google_refresh_token: "1",
+        email: "email@example.com",
+        name: "Test User"
+      })
+
+    {:ok,
+     conn:
+       conn
+       |> put_req_header("accept", "application/json")
+       |> put_req_header(
+         "authorization",
+         "Bearer #{Haterblock.Auth.generate_token(%{sub: user.id}).token}"
+       )}
   end
 
   describe "index" do
@@ -22,33 +42,5 @@ defmodule HaterblockWeb.CommentControllerTest do
       conn = get(conn, comment_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
     end
-  end
-
-  describe "update comment" do
-    setup [:create_comment]
-
-    test "renders comment when data is valid", %{conn: conn, comment: %Comment{id: id} = comment} do
-      conn = put(conn, comment_path(conn, :update, comment), comment: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, comment_path(conn, :show, id))
-
-      assert json_response(conn, 200)["data"] == %{
-               "id" => id,
-               "body" => "some updated body",
-               "google_id" => "some updated google_id",
-               "score" => 1
-             }
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, comment: comment} do
-      conn = put(conn, comment_path(conn, :update, comment), comment: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  defp create_comment(_) do
-    comment = fixture(:comment)
-    {:ok, comment: comment}
   end
 end
