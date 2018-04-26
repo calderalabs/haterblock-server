@@ -18,12 +18,19 @@ defmodule Haterblock.AccountsTest do
     @update_attrs %{
       google_id: "some updated google id",
       google_token: "some updated google token",
+      google_refresh_token: "some updated google refresh token",
       email: "test2@email.com",
       name: "Ciccio Pasticcione",
       synced_at: Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}"),
       auto_reject_enabled: false
     }
-    @invalid_attrs %{google_id: nil}
+    @invalid_attrs %{
+      google_id: nil,
+      google_token: nil,
+      google_refresh_token: nil,
+      email: nil,
+      name: nil
+    }
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -47,6 +54,12 @@ defmodule Haterblock.AccountsTest do
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
       assert user.google_id == "some google id"
+      assert user.google_token == "some google token"
+      assert user.google_refresh_token == "some google refresh token"
+      assert user.email == "test1@email.com"
+      assert user.name == "Ciccio Pasticcio"
+      assert user.synced_at == Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}")
+      assert user.auto_reject_enabled == true
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -58,6 +71,12 @@ defmodule Haterblock.AccountsTest do
       assert {:ok, user} = Accounts.update_user(user, @update_attrs)
       assert %User{} = user
       assert user.google_id == "some updated google id"
+      assert user.google_token == "some updated google token"
+      assert user.google_refresh_token == "some updated google refresh token"
+      assert user.email == "test2@email.com"
+      assert user.name == "Ciccio Pasticcione"
+      assert user.synced_at == Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}")
+      assert user.auto_reject_enabled == false
     end
 
     test "update_user/2 with invalid data returns error changeset" do

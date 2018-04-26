@@ -3,6 +3,14 @@ defmodule HaterblockWeb.AuthenticatedPlugTest do
 
   alias Haterblock.Accounts
 
+  @user_attrs %{
+    google_id: "some google id",
+    google_token: "some google token",
+    google_refresh_token: "some google refresh token",
+    email: "test1@email.com",
+    name: "Ciccio Pasticcio"
+  }
+
   setup %{conn: conn} do
     {:ok,
      conn:
@@ -17,7 +25,9 @@ defmodule HaterblockWeb.AuthenticatedPlugTest do
         HaterblockWeb.Plugs.Authenticated.call(conn, %{})
         |> json_response(401)
 
-      assert response["error"] == "Unauthorized"
+      error = response["errors"] |> Enum.at(0)
+      assert error["code"] == "401"
+      assert error["title"] == "Unauthorized"
     end
 
     test "call/2 renders error with unauthorized with invalid token", %{conn: conn} do
@@ -28,12 +38,13 @@ defmodule HaterblockWeb.AuthenticatedPlugTest do
         )
         |> json_response(401)
 
-      assert response["error"] == "Unauthorized"
+      error = response["errors"] |> Enum.at(0)
+      assert error["code"] == "401"
+      assert error["title"] == "Unauthorized"
     end
 
     test "call/2 assigns the current user with valid token", %{conn: conn} do
-      {:ok, user} =
-        Accounts.create_user(%{google_id: "1", google_token: "123", google_refresh_token: "456"})
+      {:ok, user} = Accounts.create_user(@user_attrs)
 
       token = Haterblock.Auth.generate_token(%{sub: user.id}).token
 

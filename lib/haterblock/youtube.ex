@@ -50,18 +50,22 @@ defmodule Haterblock.Youtube do
     %{channels: channels, user: user} = user |> list_channels
     channel = channels |> Enum.at(0)
 
-    %{comment_threads: comment_threads, next_page: next_page, user: user} =
-      user |> list_comment_threads(channel, page)
+    if channel do
+      %{comment_threads: comment_threads, next_page: next_page, user: user} =
+        user |> list_comment_threads(channel, page)
 
-    comments =
-      comment_threads
-      |> Enum.map(& &1.snippet.topLevelComment)
-      |> Haterblock.Comments.Comment.from_youtube_comments()
-      |> Enum.map(fn comment ->
-        %{comment | user_id: user.id}
-      end)
+      comments =
+        comment_threads
+        |> Enum.map(& &1.snippet.topLevelComment)
+        |> Haterblock.Comments.Comment.from_youtube_comments()
+        |> Enum.map(fn comment ->
+          %{comment | user_id: user.id}
+        end)
 
-    %{comments: comments, next_page: next_page}
+      %{comments: comments, next_page: next_page}
+    else
+      %{comments: [], next_page: nil}
+    end
   end
 
   def reject_comments(comments, user) do

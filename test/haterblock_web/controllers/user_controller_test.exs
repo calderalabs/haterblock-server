@@ -6,7 +6,9 @@ defmodule HaterblockWeb.UserControllerTest do
   @create_attrs %{
     google_id: "some google id",
     google_token: "some google token",
-    google_refresh_token: "some google refresh token"
+    google_refresh_token: "some google refresh token",
+    email: "test1@email.com",
+    name: "Ciccio Pasticcio"
   }
 
   def fixture(:user) do
@@ -29,7 +31,15 @@ defmodule HaterblockWeb.UserControllerTest do
         |> get(user_path(conn, :show))
         |> json_response(200)
 
-      assert response["data"] == %{"id" => user.id}
+      assert response["data"] == %{
+               "id" => user.id,
+               "attributes" => %{
+                 "auto_reject_enabled" => false,
+                 "email" => "test1@email.com",
+                 "name" => "Ciccio Pasticcio",
+                 "synced_at" => nil
+               }
+             }
     end
   end
 
