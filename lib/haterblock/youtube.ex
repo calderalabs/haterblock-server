@@ -70,7 +70,7 @@ defmodule Haterblock.Youtube do
   end
 
   def reject_comments(comments, user) do
-    with {:ok, _} <-
+    with {:ok, _, _} <-
            request(user, fn user ->
              conn = conn(user)
              ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")

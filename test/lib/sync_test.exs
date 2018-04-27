@@ -1,5 +1,6 @@
 defmodule Haterblock.SyncTest do
   use Haterblock.DataCase
+  use Bamboo.Test, shared: true
 
   @user_attrs %{
     google_id: "some google id",
@@ -10,8 +11,8 @@ defmodule Haterblock.SyncTest do
   }
 
   setup do
-    {:ok, _} = Haterblock.Accounts.create_user(@user_attrs)
-    :ok
+    {:ok, user} = Haterblock.Accounts.create_user(@user_attrs)
+    {:ok, %{user: user}}
   end
 
   describe "sync_comments" do
@@ -81,24 +82,172 @@ defmodule Haterblock.SyncTest do
     end
 
     test "assigns a sentiment score to every comment" do
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        },
+        %{
+          id: "2",
+          snippet: %{
+            textDisplay: "Some other comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        },
+        "Some other comment" => %{
+          documentSentiment: %{
+            score: 0.2
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+      comments = Haterblock.Comments.list_comments()
+
+      some_comment = comments |> Enum.find(fn comment -> comment.body == "Some comment" end)
+      assert some_comment.score == -7
+
+      some_other_comment =
+        comments |> Enum.find(fn comment -> comment.body == "Some other comment" end)
+
+      assert some_other_comment.score == 2
     end
 
-    test "auto rejects hateful comments if auto rejecting is turned on" do
+    test "auto rejects hateful comments if auto rejecting is turned on", %{user: user} do
+      {:ok, _} = user |> Haterblock.Accounts.update_user(%{auto_reject_enabled: true})
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+      comment = Haterblock.Comments.list_comments() |> List.first()
+
+      assert comment.status == "rejected"
     end
 
-    test "doesn't auto reject hateful comments if auto rejecting is turned off" do
+    test "doesn't auto reject hateful comments if auto rejecting is turned off", %{user: user} do
+      {:ok, _} = user |> Haterblock.Accounts.update_user(%{auto_reject_enabled: false})
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+      comment = Haterblock.Comments.list_comments() |> List.first()
+
+      assert comment.status == "published"
+    end
+
+    test "sends an email about new hateful comments if auto rejecting is turned off", %{
+      user: user
+    } do
+      {:ok, _} = user |> Haterblock.Accounts.update_user(%{auto_reject_enabled: false})
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+
+      assert_delivered_email(HaterblockWeb.Email.new_hateful_comments(user, 1))
+    end
+
+    test "sends an email about ther rejection of hateful commments if auto rejecting is turned off",
+         %{
+           user: user
+         } do
+      {:ok, _} = user |> Haterblock.Accounts.update_user(%{auto_reject_enabled: true})
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+
+      assert_delivered_email(HaterblockWeb.Email.rejected_hateful_comments(user, 1))
     end
 
     test "syncs multiple pages of comments" do
-    end
-
-    test "sends an email about new hateful comments if auto rejecting is turned off" do
-    end
-
-    test "sends an email about ther rejection of hateful commments if auto rejecting is turned off" do
-    end
-
-    test "broadcasts the new comment count to the user channel" do
     end
   end
 end
