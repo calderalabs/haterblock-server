@@ -202,16 +202,15 @@ defmodule Haterblock.Comments do
   end
 
   def reject_comments(comments, user) do
-    with {:ok} <- Haterblock.Youtube.reject_comments(comments, user) do
-      updated_comments =
-        comments
-        |> Enum.map(fn comment ->
-          with {:ok, comment} <- update_comment(comment, %{status: "rejected"}) do
-            comment
-          end
-        end)
+    {:ok} = Haterblock.Youtube.reject_comments(comments, user)
 
-      {:ok, updated_comments}
-    end
+    updated_comments =
+      comments
+      |> Enum.map(fn comment ->
+        {:ok, comment} = update_comment(comment, %{status: "rejected"})
+        comment
+      end)
+
+    {:ok, updated_comments}
   end
 end

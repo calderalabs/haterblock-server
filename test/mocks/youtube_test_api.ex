@@ -20,11 +20,29 @@ defmodule Haterblock.YoutubeTestApi do
      }}
   end
 
-  def comment_threads_list(_, _, _) do
+  def comment_threads_list(_, _, options) do
+    comments = Agent.get(__MODULE__, &Map.get(&1, :comments))
+    page = options[:pageToken] || 0
+
+    pages =
+      if Enum.empty?(comments) do
+        [[]]
+      else
+        comments |> Enum.chunk_every(2)
+      end
+
+    next_page_token =
+      if Enum.count(pages) - 1 == page do
+        nil
+      else
+        page + 1
+      end
+
     {:ok,
      %{
        items:
-         Agent.get(__MODULE__, &Map.get(&1, :comments))
+         pages
+         |> Enum.at(page)
          |> Enum.map(fn comment ->
            %{
              snippet: %{
@@ -32,7 +50,7 @@ defmodule Haterblock.YoutubeTestApi do
              }
            }
          end),
-       nextPageToken: nil
+       nextPageToken: next_page_token
      }}
   end
 
