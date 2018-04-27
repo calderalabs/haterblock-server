@@ -248,6 +248,41 @@ defmodule Haterblock.SyncTest do
     end
 
     test "syncs multiple pages of comments" do
+      now = Timex.now()
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.shift(now, days: -3) |> DateTime.to_iso8601()
+          }
+        },
+        %{
+          id: "2",
+          snippet: %{
+            textDisplay: "Some other comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.shift(now, days: -3) |> DateTime.to_iso8601()
+          }
+        },
+        %{
+          id: "3",
+          snippet: %{
+            textDisplay: "Some other comment 2",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.shift(now, days: -3) |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.Sync.sync_comments()
+      comments = Haterblock.Comments.list_comments()
+      assert Enum.count(comments) == 3
     end
   end
 end

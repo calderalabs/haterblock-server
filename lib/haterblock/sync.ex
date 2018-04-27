@@ -53,8 +53,8 @@ defmodule Haterblock.Sync do
     last_comment = comments |> List.last()
     new_comments = new_comments ++ page_new_comments
 
-    if next_page && Enum.member?(new_comments, last_comment) &&
-         Enum.member?(recent_comments, last_comment) do
+    if next_page && Enum.member?(new_comments |> Enum.map(& &1.google_id), last_comment.google_id) &&
+         Enum.member?(recent_comments |> Enum.map(& &1.google_id), last_comment.google_id) do
       perform_syncing(user, %{
         page: next_page,
         new_comments: new_comments
@@ -85,12 +85,15 @@ defmodule Haterblock.Sync do
     new_comment_count = Enum.count(new_comments)
 
     if new_comment_count > 0 do
-      :timer.sleep(2000)
-
-      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
-        synced_at: user.synced_at,
-        new_comment_count: new_comment_count
-      })
+      Async.perform(
+        fn ->
+          HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
+            synced_at: user.synced_at,
+            new_comment_count: new_comment_count
+          })
+        end,
+        2000
+      )
     else
       :ok
     end

@@ -35,16 +35,16 @@ defmodule Haterblock.Youtube do
       grant_type: "refresh_token"
     ]
 
-    with {:ok, %HTTPoison.Response{body: body}} <-
-           HTTPoison.post("https://www.googleapis.com/oauth2/v4/token", {:form, body}, [
-             {"Content-Type", "application/x-www-form-urlencoded"}
-           ]) do
-      %{"access_token" => access_token} = body |> Poison.decode!()
+    {:ok, %HTTPoison.Response{body: body}} =
+      HTTPoison.post("https://www.googleapis.com/oauth2/v4/token", {:form, body}, [
+        {"Content-Type", "application/x-www-form-urlencoded"}
+      ])
 
-      {:ok, updated_user} = user |> Haterblock.Accounts.update_user(%{google_token: access_token})
+    %{"access_token" => access_token} = body |> Poison.decode!()
 
-      request(updated_user, fun)
-    end
+    {:ok, updated_user} = user |> Haterblock.Accounts.update_user(%{google_token: access_token})
+
+    request(updated_user, fun)
   end
 
   def list_comments(user, %{page: page} \\ %{page: nil}) do
@@ -70,19 +70,19 @@ defmodule Haterblock.Youtube do
   end
 
   def reject_comments(comments, user) do
-    with {:ok, _, _} <-
-           request(user, fn user ->
-             conn = conn(user)
-             ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")
+    {:ok, _, _} =
+      request(user, fn user ->
+        conn = conn(user)
+        ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")
 
-             youtube_api().comments_set_moderation_status(
-               conn,
-               ids,
-               "rejected"
-             )
-           end) do
-      {:ok}
-    end
+        youtube_api().comments_set_moderation_status(
+          conn,
+          ids,
+          "rejected"
+        )
+      end)
+
+    {:ok}
   end
 
   defp conn(user) do
