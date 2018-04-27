@@ -22,3 +22,5 @@ config :haterblock,
   youtube_api: Haterblock.YoutubeTestApi,
   google_nlp_api: Haterblock.GoogleNlpTestApi,
   async: TestAsync
+
+config :haterblock, Haterblock.Mailer, adapter: Bamboo.TestAdapter

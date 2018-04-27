@@ -37,7 +37,7 @@ defmodule Haterblock.YoutubeTestApi do
   end
 
   def comments_set_moderation_status(_, _, _) do
-    {:ok, %{}}
+    {:ok, nil}
   end
 
   def put_comments(comments) do

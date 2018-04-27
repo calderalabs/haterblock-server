@@ -33,6 +33,7 @@ defmodule Haterblock.DataCase do
     end
 
     Haterblock.YoutubeTestApi.reset()
+    Haterblock.GoogleNlpTestApi.reset()
 
     :ok
   end
