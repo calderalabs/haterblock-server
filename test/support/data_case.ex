@@ -32,6 +32,8 @@ defmodule Haterblock.DataCase do
       Ecto.Adapters.SQL.Sandbox.mode(Haterblock.Repo, {:shared, self()})
     end
 
+    Haterblock.YoutubeTestApi.reset()
+
     :ok
   end
 

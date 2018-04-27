@@ -1,5 +1,7 @@
 defmodule Haterblock.Youtube do
-  @youtube_api Application.get_env(:haterblock, :youtube_api)
+  defp youtube_api do
+    Application.get_env(:haterblock, :youtube_api)
+  end
 
   defp request(user, fun) do
     result = fun.(user)
@@ -73,7 +75,7 @@ defmodule Haterblock.Youtube do
              conn = conn(user)
              ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")
 
-             @youtube_api.comments_set_moderation_status(
+             youtube_api().comments_set_moderation_status(
                conn,
                ids,
                "rejected"
@@ -84,7 +86,7 @@ defmodule Haterblock.Youtube do
   end
 
   defp conn(user) do
-    @youtube_api.new_connection(user.google_token)
+    youtube_api().new_connection(user.google_token)
   end
 
   defp list_channels(user) do
@@ -92,7 +94,7 @@ defmodule Haterblock.Youtube do
       request(user, fn user ->
         conn = conn(user)
 
-        @youtube_api.channels_list(conn, "contentDetails", [
+        youtube_api().channels_list(conn, "contentDetails", [
           {:mine, true}
         ])
       end)
@@ -105,7 +107,7 @@ defmodule Haterblock.Youtube do
       request(user, fn user ->
         conn = conn(user)
 
-        @youtube_api.comment_threads_list(conn, "id,snippet", [
+        youtube_api().comment_threads_list(conn, "id,snippet", [
           {:allThreadsRelatedToChannelId, channel.id},
           {:textFormat, "plainText"},
           {:maxResults, 100},
