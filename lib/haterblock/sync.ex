@@ -82,14 +82,11 @@ defmodule Haterblock.Sync do
       end
     end
 
-    Async.perform(
-      fn ->
-        HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
-          synced_at: user.synced_at,
-          new_comment_count: Enum.count(new_comments)
-        })
-      end,
-      2000
-    )
+    Async.perform(fn ->
+      HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
+        synced_at: user.synced_at,
+        new_comment_count: Enum.count(new_comments)
+      })
+    end)
   end
 end
