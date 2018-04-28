@@ -82,20 +82,14 @@ defmodule Haterblock.Sync do
       end
     end
 
-    new_comment_count = Enum.count(new_comments)
-
-    if new_comment_count > 0 do
-      Async.perform(
-        fn ->
-          HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
-            synced_at: user.synced_at,
-            new_comment_count: new_comment_count
-          })
-        end,
-        2000
-      )
-    else
-      :ok
-    end
+    Async.perform(
+      fn ->
+        HaterblockWeb.Endpoint.broadcast("user:#{user.id}", "syncing_updated", %{
+          synced_at: user.synced_at,
+          new_comment_count: Enum.count(new_comments)
+        })
+      end,
+      2000
+    )
   end
 end

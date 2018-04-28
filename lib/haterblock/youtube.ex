@@ -23,7 +23,7 @@ defmodule Haterblock.Youtube do
         refresh_token(user, fun)
 
       {:error, %{status: 204} = response} ->
-        {:ok, response}
+        {:ok, response, user}
     end
   end
 
@@ -69,19 +69,43 @@ defmodule Haterblock.Youtube do
     end
   end
 
-  def reject_comments(comments, user) do
-    {:ok, _, _} =
+  defp find_comments(ids, user) do
+    {:ok, %{items: items}, _} =
       request(user, fn user ->
         conn = conn(user)
-        ids = Enum.map(comments, & &1.google_id) |> Enum.join(",")
 
-        youtube_api().comments_set_moderation_status(
-          conn,
-          ids,
-          "rejected"
-        )
+        youtube_api().comments_list(conn, "id,snippet", [
+          {:id, Enum.join(ids, ",")}
+        ])
       end)
 
+    Haterblock.Comments.Comment.from_youtube_comments(items)
+  end
+
+  defp reject_comments_request(comments, user) do
+    conn = conn(user)
+
+    ids =
+      comments
+      |> Enum.filter(&(&1.status != "rejected"))
+      |> Enum.map(& &1.google_id)
+
+    if Enum.empty?(ids) do
+      {:ok, nil}
+    else
+      case youtube_api().comments_set_moderation_status(
+             conn,
+             Enum.join(ids, ","),
+             "rejected"
+           ) do
+        {:error, %{status: 400}} -> find_comments(ids, user) |> reject_comments_request(user)
+        response -> response
+      end
+    end
+  end
+
+  def reject_comments(comments, user) do
+    {:ok, _, _} = request(user, fn user -> reject_comments_request(comments, user) end)
     {:ok}
   end
 
