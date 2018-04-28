@@ -14,4 +14,8 @@ defmodule Haterblock.YoutubeApi do
   def comment_threads_list(conn, part, options) do
     GoogleApi.YouTube.V3.Api.CommentThreads.youtube_comment_threads_list(conn, part, options)
   end
+
+  def comments_list(conn, part, options) do
+    GoogleApi.YouTube.V3.Api.Comments.youtube_comments_list(conn, part, options)
+  end
 end

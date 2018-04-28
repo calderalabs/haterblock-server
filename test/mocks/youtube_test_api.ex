@@ -58,6 +58,10 @@ defmodule Haterblock.YoutubeTestApi do
     {:ok, nil}
   end
 
+  def comments_list(_, _, _) do
+    {:ok, %{}}
+  end
+
   def put_comments(comments) do
     Agent.update(__MODULE__, &Map.put(&1, :comments, comments))
   end
