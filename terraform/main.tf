@@ -108,7 +108,7 @@ output "public_ip" {
 # Alarms
 
 module "notify_slack" {
-  source = "terraform-aws-modules/notify-slack/aws"
+  source = "github.com/calderalabs/terraform-aws-notify-slack?ref=c31e39fe04d8a437948550e89726025d02502e0f"
 
   sns_topic_name = "slack-topic"
 
