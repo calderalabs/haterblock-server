@@ -8,7 +8,7 @@ defmodule Haterblock.GoogleNlp do
   end
 
   def assign_sentiment_score(comment) do
-    {:ok, response} =
+    result =
       conn()
       |> google_nlp_api().language_documents_analyze_sentiment([
         {:key, System.get_env("GOOGLE_API_KEY")},
@@ -21,7 +21,13 @@ defmodule Haterblock.GoogleNlp do
          }}
       ])
 
-    %{comment | score: trunc(response.documentSentiment.score * 10)}
+    case result do
+      {:ok, response} ->
+        %{comment | score: trunc(response.documentSentiment.score * 10)}
+
+      {:error, %{status: 400}} ->
+        %{comment | score: 0}
+    end
   end
 
   defp conn do
