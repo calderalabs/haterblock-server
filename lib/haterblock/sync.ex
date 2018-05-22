@@ -66,7 +66,7 @@ defmodule Haterblock.Sync do
   end
 
   defp finish_syncing(%{user: user, new_comments: new_comments}, notify) do
-    if false do
+    if notify && user.email_notifications_enabled do
       hateful_comment_count =
         Haterblock.Comments.Comment.filter_hateful_comments(new_comments) |> Enum.count()
 

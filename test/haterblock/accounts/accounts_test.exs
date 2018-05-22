@@ -13,7 +13,8 @@ defmodule Haterblock.AccountsTest do
       email: "test1@email.com",
       name: "Ciccio Pasticcio",
       synced_at: Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}"),
-      auto_reject_enabled: true
+      auto_reject_enabled: true,
+      email_notifications_enabled: false
     }
     @update_attrs %{
       google_id: "some updated google id",
@@ -22,7 +23,8 @@ defmodule Haterblock.AccountsTest do
       email: "test2@email.com",
       name: "Ciccio Pasticcione",
       synced_at: Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}"),
-      auto_reject_enabled: false
+      auto_reject_enabled: false,
+      email_notifications_enabled: true
     }
     @invalid_attrs %{
       google_id: nil,
@@ -60,6 +62,7 @@ defmodule Haterblock.AccountsTest do
       assert user.name == "Ciccio Pasticcio"
       assert user.synced_at == Timex.parse!("2015-06-24T04:50:34.0000000Z", "{ISO:Extended:Z}")
       assert user.auto_reject_enabled == true
+      assert user.email_notifications_enabled == false
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -77,6 +80,7 @@ defmodule Haterblock.AccountsTest do
       assert user.name == "Ciccio Pasticcione"
       assert user.synced_at == Timex.parse!("2015-06-25T04:50:34.0000000Z", "{ISO:Extended:Z}")
       assert user.auto_reject_enabled == false
+      assert user.email_notifications_enabled == true
     end
 
     test "update_user/2 with invalid data returns error changeset" do

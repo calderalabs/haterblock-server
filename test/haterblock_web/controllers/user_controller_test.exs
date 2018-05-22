@@ -35,6 +35,7 @@ defmodule HaterblockWeb.UserControllerTest do
                "id" => user.id,
                "attributes" => %{
                  "auto_reject_enabled" => false,
+                 "email_notifications_enabled" => true,
                  "email" => "test1@email.com",
                  "name" => "Ciccio Pasticcio",
                  "synced_at" => nil

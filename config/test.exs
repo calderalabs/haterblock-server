@@ -24,3 +24,5 @@ config :haterblock,
   async: TestAsync
 
 config :haterblock, Haterblock.Mailer, adapter: Bamboo.TestAdapter
+
+config :bamboo, :refute_timeout, 10

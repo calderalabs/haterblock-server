@@ -216,7 +216,7 @@ defmodule Haterblock.SyncTest do
       assert_delivered_email(HaterblockWeb.Email.new_hateful_comments(user, 1))
     end
 
-    test "sends an email about ther rejection of hateful commments if auto rejecting is turned off",
+    test "sends an email about the rejection of hateful commments if auto rejecting is turned on",
          %{
            user: user
          } do
@@ -245,6 +245,78 @@ defmodule Haterblock.SyncTest do
       Haterblock.Sync.sync_comments()
 
       assert_delivered_email(HaterblockWeb.Email.rejected_hateful_comments(user, 1))
+    end
+
+    test "doesn't send an email about new hateful comments if auto rejecting is turned off and email notifications are disabled",
+         %{
+           user: user
+         } do
+      {:ok, _} =
+        user
+        |> Haterblock.Accounts.update_user(%{
+          auto_reject_enabled: false,
+          email_notifications_enabled: false
+        })
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+
+      refute_delivered_email(HaterblockWeb.Email.new_hateful_comments(user, 1))
+    end
+
+    test "doesn't send an email about the rejection of hateful commments if auto rejecting is turned on and email notifications are disabled",
+         %{
+           user: user
+         } do
+      {:ok, _} =
+        user
+        |> Haterblock.Accounts.update_user(%{
+          auto_reject_enabled: true,
+          email_notifications_enabled: false
+        })
+
+      Haterblock.YoutubeTestApi.put_comments([
+        %{
+          id: "1",
+          snippet: %{
+            textDisplay: "Some comment",
+            moderationStatus: "published",
+            videoId: "1",
+            publishedAt: Timex.now() |> DateTime.to_iso8601()
+          }
+        }
+      ])
+
+      Haterblock.GoogleNlpTestApi.put_documents(%{
+        "Some comment" => %{
+          documentSentiment: %{
+            score: -0.7
+          }
+        }
+      })
+
+      Haterblock.Sync.sync_comments()
+
+      refute_delivered_email(HaterblockWeb.Email.rejected_hateful_comments(user, 1))
     end
 
     test "syncs multiple pages of comments" do

@@ -11,6 +11,7 @@ defmodule Haterblock.Accounts.User do
     field(:name, :string)
     field(:synced_at, :utc_datetime)
     field(:auto_reject_enabled, :boolean, default: false)
+    field(:email_notifications_enabled, :boolean, default: true)
 
     timestamps()
   end
@@ -25,7 +26,8 @@ defmodule Haterblock.Accounts.User do
       :email,
       :name,
       :synced_at,
-      :auto_reject_enabled
+      :auto_reject_enabled,
+      :email_notifications_enabled
     ])
     |> validate_required([:google_id, :google_token, :google_refresh_token, :email, :name])
   end

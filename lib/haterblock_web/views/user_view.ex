@@ -17,7 +17,8 @@ defmodule HaterblockWeb.UserView do
         name: user.name,
         email: user.email,
         synced_at: user.synced_at,
-        auto_reject_enabled: user.auto_reject_enabled
+        auto_reject_enabled: user.auto_reject_enabled,
+        email_notifications_enabled: user.email_notifications_enabled
       }
     }
   end
