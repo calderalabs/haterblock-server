@@ -88,6 +88,10 @@ resource "aws_instance" "web" {
   lifecycle {
     ignore_changes = ["ami"]
   }
+
+  tags {
+    Name = "haterblock"
+  }
 }
 
 resource "aws_eip" "web" {
